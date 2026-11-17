@@ -1,33 +1,35 @@
 export default {
   content: ['./index.html', './src/**/*.{svelte,js}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        accent: {
-          DEFAULT: '#6c5ce7',
-          light: '#8b7cf0',
-          dark: '#5a4bd4',
-          glow: 'rgba(108,92,231,0.3)',
-        },
-        surface: {
-          DEFAULT: '#12121e',
-          light: '#1a1a2e',
-          lighter: '#242442',
+        studio: {
+          bg: 'var(--studio-bg)',
+          panel: 'var(--studio-panel)',
+          elevated: 'var(--studio-elevated)',
+          border: 'var(--studio-border)',
+          'border-strong': 'var(--studio-border-strong)',
+          ink: 'var(--studio-ink)',
+          muted: 'var(--studio-muted)',
+          subtle: 'var(--studio-subtle)',
+          accent: 'var(--studio-accent)',
+          'accent-soft': 'var(--studio-accent-soft)',
+          'accent-ink': 'var(--studio-accent-ink)',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        display: ['Space Grotesk', 'system-ui', 'sans-serif'],
       },
       animation: {
-        'spin-slow': 'spin 2s linear infinite',
-        'pulse-soft': 'pulse 3s ease-in-out infinite',
-        'float': 'float 3s ease-in-out infinite',
+        float: 'float 4s ease-in-out infinite',
       },
       keyframes: {
         float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-8px)' },
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' },
         },
       },
     },

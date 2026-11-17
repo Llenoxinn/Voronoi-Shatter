@@ -1,4 +1,39 @@
-export function generateSeeds(w, h, count, jitter) {
+function mulberry32(seed) {
+  let a = (seed >>> 0) || 1;
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function generateSeeds(w, h, count, jitter, seed = 1, impact = null) {
+  const rand = mulberry32(seed);
+  const seeds = [];
+
+  if (impact && typeof impact.x === 'number' && typeof impact.y === 'number') {
+    const ix = Math.max(0, Math.min(w - 1, impact.x * w));
+    const iy = Math.max(0, Math.min(h - 1, impact.y * h));
+    const maxR = Math.hypot(Math.max(ix, w - ix), Math.max(iy, h - iy));
+    const jf = jitter / 100;
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+    seeds.push({ x: ix, y: iy });
+    for (let k = 1; k < count; k++) {
+      const t = k / count;
+      // Power curve clusters smaller shards tightly around the impact epicenter
+      const rNorm = Math.pow(t, 1.35);
+      const radius = rNorm * maxR * (0.85 + (rand() - 0.5) * 0.45 * jf);
+      const angle = k * goldenAngle + (rand() - 0.5) * 0.85 * jf;
+      const sx = Math.max(0, Math.min(w - 1, ix + Math.cos(angle) * radius));
+      const sy = Math.max(0, Math.min(h - 1, iy + Math.sin(angle) * radius));
+      seeds.push({ x: sx, y: sy });
+    }
+    return seeds;
+  }
+
   const aspect = w / h;
   const cols = Math.max(1, Math.round(Math.sqrt(count * aspect)));
   const rows = Math.max(1, Math.round(count / cols));
@@ -7,15 +42,14 @@ export function generateSeeds(w, h, count, jitter) {
   const jf = jitter / 100;
   const maxDx = cellW * 0.48 * jf;
   const maxDy = cellH * 0.48 * jf;
-  const seeds = [];
 
   for (let r = 0; r < rows && seeds.length < count; r++) {
     for (let c = 0; c < cols && seeds.length < count; c++) {
       const cx = (c + 0.5) * cellW;
       const cy = (r + 0.5) * cellH;
       seeds.push({
-        x: Math.max(0, Math.min(w - 1, cx + (Math.random() * 2 - 1) * maxDx)),
-        y: Math.max(0, Math.min(h - 1, cy + (Math.random() * 2 - 1) * maxDy)),
+        x: Math.max(0, Math.min(w - 1, cx + (rand() * 2 - 1) * maxDx)),
+        y: Math.max(0, Math.min(h - 1, cy + (rand() * 2 - 1) * maxDy)),
       });
     }
   }
@@ -140,6 +174,7 @@ export function renderVoronoi(
   borderColor,
   refraction,
   bevel,
+  dispersion,
   blendPixels,
   blendMode,
   blendOpacity
@@ -154,17 +189,25 @@ export function renderVoronoi(
   const refAmt = Math.max(0, Math.min(1, (refraction || 0) / 100));
   const refShift = refAmt * 32;
   const bevelAmt = Math.max(0, Math.min(1, (bevel || 0) / 100));
+  const dispAmt = Math.max(0, Math.min(1, (dispersion || 0) / 100));
+  const dispPx = dispAmt * 14;
 
   const nSeeds = seeds ? seeds.length : avgColors.length / 4;
   const seedShiftX = new Float32Array(nSeeds);
   const seedShiftY = new Float32Array(nSeeds);
+  const seedDirX = new Float32Array(nSeeds);
+  const seedDirY = new Float32Array(nSeeds);
   const seedTint = new Float32Array(nSeeds);
 
   for (let s = 0; s < nSeeds; s++) {
     const angle = seedHash(s + 1, 1.37) * Math.PI * 2;
     const mag = 0.35 + seedHash(s + 1, 4.91) * 0.65;
-    seedShiftX[s] = Math.cos(angle) * mag * refShift;
-    seedShiftY[s] = Math.sin(angle) * mag * refShift;
+    const dx = Math.cos(angle);
+    const dy = Math.sin(angle);
+    seedDirX[s] = dx;
+    seedDirY[s] = dy;
+    seedShiftX[s] = dx * mag * refShift;
+    seedShiftY[s] = dy * mag * refShift;
     seedTint[s] = (seedHash(s + 1, 9.13) - 0.5) * 2;
   }
 
@@ -180,14 +223,28 @@ export function renderVoronoi(
       let g = avgColors[ai + 1];
       let b = avgColors[ai + 2];
 
-      if (refAmt > 0 && srcPixels) {
-        const sx = Math.max(0, Math.min(w - 1, Math.round(x + seedShiftX[s])));
-        const sy = Math.max(0, Math.min(h - 1, Math.round(y + seedShiftY[s])));
-        const si = (sy * w + sx) * 4;
-        const mix = Math.min(1, refAmt * 1.15);
-        r = r + (srcPixels[si] - r) * mix;
-        g = g + (srcPixels[si + 1] - g) * mix;
-        b = b + (srcPixels[si + 2] - b) * mix;
+      if ((refAmt > 0 || dispAmt > 0) && srcPixels) {
+        const gx = Math.max(0, Math.min(w - 1, Math.round(x + seedShiftX[s])));
+        const gy = Math.max(0, Math.min(h - 1, Math.round(y + seedShiftY[s])));
+        const gi = (gy * w + gx) * 4;
+
+        let sr = srcPixels[gi];
+        const sg = srcPixels[gi + 1];
+        let sb = srcPixels[gi + 2];
+
+        if (dispPx > 0.25) {
+          const rx = Math.max(0, Math.min(w - 1, Math.round(gx + seedDirX[s] * dispPx)));
+          const ry = Math.max(0, Math.min(h - 1, Math.round(gy + seedDirY[s] * dispPx)));
+          const bx = Math.max(0, Math.min(w - 1, Math.round(gx - seedDirX[s] * dispPx)));
+          const by = Math.max(0, Math.min(h - 1, Math.round(gy - seedDirY[s] * dispPx)));
+          sr = srcPixels[(ry * w + rx) * 4];
+          sb = srcPixels[(by * w + bx) * 4 + 2];
+        }
+
+        const mix = Math.min(1, Math.max(refAmt * 1.15, dispAmt * 0.85));
+        r = r + (sr - r) * mix;
+        g = g + (sg - g) * mix;
+        b = b + (sb - b) * mix;
       }
 
       const d1 = Math.sqrt(dist1Sq[i]);
@@ -198,7 +255,6 @@ export function renderVoronoi(
         const vx = x - seeds[s].x;
         const vy = y - seeds[s].y;
         const len = Math.sqrt(vx * vx + vy * vy) || 1;
-        // Top-left key light (-0.707, -0.707)
         const lightDot = -(vx * 0.7071 + vy * 0.7071) / len;
         const rim = 1 - smoothstep(bw, bw + 14, edgeDist);
         const facetLight = seedTint[s] * 14 * bevelAmt;

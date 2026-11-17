@@ -16,6 +16,13 @@ export function setOnResult(callback) {
   onResult = callback;
 }
 
+function cloneParams(params) {
+  return {
+    ...params,
+    impact: params.impact ? { x: params.impact.x, y: params.impact.y } : null,
+  };
+}
+
 export function requestFullProcess(srcData, params, blendData) {
   const id = ++processId;
   const w = getWorker();
@@ -32,7 +39,7 @@ export function requestFullProcess(srcData, params, blendData) {
       pixels: pixels.buffer,
       width: srcData.width,
       height: srcData.height,
-      params: { ...params },
+      params: cloneParams(params),
       blendPixels: blendPixels ? blendPixels.buffer : null,
     },
   }, transferables);
@@ -62,7 +69,7 @@ export function requestRenderOnly(cached, params, blendData) {
       avgColors: copyAC.buffer,
       width: cached.width,
       height: cached.height,
-      params: { ...params },
+      params: cloneParams(params),
       blendPixels: blendPixels ? blendPixels.buffer : null,
     },
   }, transferables);

@@ -20,7 +20,7 @@ self.onmessage = function (e) {
     const blendArray = blendPixels ? new Uint8ClampedArray(blendPixels) : null;
 
     cachedSrcPixels = pixelArray;
-    const seeds = generateSeeds(width, height, params.cellCount, params.jitter);
+    const seeds = generateSeeds(width, height, params.cellCount, params.jitter, params.seed, params.impact);
     cachedSeeds = seeds;
 
     const voronoi = computeVoronoi(pixelArray, width, height, seeds);
@@ -38,6 +38,7 @@ self.onmessage = function (e) {
       bc,
       params.refraction,
       params.bevel,
+      params.dispersion,
       blendArray,
       params.blendMode,
       params.blendOpacity
@@ -87,6 +88,7 @@ self.onmessage = function (e) {
       bc,
       params.refraction,
       params.bevel,
+      params.dispersion,
       blendArray,
       params.blendMode,
       params.blendOpacity

@@ -8,6 +8,8 @@
     onBorderChange,
     onRegenerate,
     onDownload,
+    onCopy,
+    onClearImpact,
     onFile,
     onBlendFile,
     onBlendRemove,
@@ -15,6 +17,18 @@
   } = $props();
 
   const appState = getAppState();
+  let copied = $state(false);
+  let copyTimer = null;
+
+  async function handleCopyClick() {
+    if (!onCopy) return;
+    const ok = await onCopy();
+    if (ok) {
+      copied = true;
+      clearTimeout(copyTimer);
+      copyTimer = setTimeout(() => (copied = false), 1500);
+    }
+  }
 
   const PRESETS = [
     { name: 'Prism', desc: 'Refracted shards', cellCount: 80, jitter: 75, refraction: 65, bevel: 55, borderWidth: 1.5, borderColor: '#0b0c0f' },
@@ -127,6 +141,18 @@
 
       <ControlSlider label="Cells" bind:value={appState.params.cellCount} min={5} max={500} step={1} onchange={onGeoChange} />
       <ControlSlider label="Jitter" bind:value={appState.params.jitter} min={0} max={100} step={1} unit="%" onchange={onGeoChange} />
+      {#if appState.params.impact}
+        <div class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-studio-accent-soft border border-studio-accent/30">
+          <span class="text-[11px] font-mono text-studio-accent">Radial impact active</span>
+          <button
+            type="button"
+            onclick={onClearImpact}
+            class="text-[11px] font-mono text-studio-ink hover:text-studio-accent transition-colors duration-150"
+          >
+            Reset to grid
+          </button>
+        </div>
+      {/if}
     </section>
 
     <section class="space-y-3.5">
@@ -137,6 +163,7 @@
 
       <ControlSlider label="Refraction" bind:value={appState.params.refraction} min={0} max={100} step={1} unit="%" onchange={onBorderChange} />
       <ControlSlider label="Bevel" bind:value={appState.params.bevel} min={0} max={100} step={1} unit="%" onchange={onBorderChange} />
+      <ControlSlider label="Dispersion" bind:value={appState.params.dispersion} min={0} max={100} step={1} unit="%" onchange={onBorderChange} />
       <ControlSlider label="Border Width" bind:value={appState.params.borderWidth} min={0} max={10} step={0.5} unit="px" onchange={onBorderChange} />
       <ColorPicker bind:value={appState.params.borderColor} onchange={onBorderChange} />
     </section>
@@ -221,6 +248,15 @@
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
           </svg>
           Reseed
+        </button>
+        <button
+          type="button"
+          onclick={handleCopyClick}
+          disabled={!appState.hasImage}
+          title="Copy PNG to clipboard"
+          class="inline-flex items-center justify-center gap-1.5 px-3 h-11 md:h-9 rounded-lg text-[11px] font-mono uppercase tracking-[0.08em] bg-studio-elevated text-studio-ink border border-studio-border-strong hover:border-studio-accent/50 enabled:active:scale-[0.96] disabled:opacity-25 disabled:cursor-not-allowed transition-[border-color,transform,opacity] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+        >
+          {copied ? 'Copied' : 'Copy'}
         </button>
         <button
           type="button"

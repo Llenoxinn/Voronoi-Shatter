@@ -4,12 +4,11 @@ Interactive, client-side Voronoi tessellation image studio built with Svelte 5, 
 
 ## Features
 
-- **Voronoi Shatter Engine**: Generates jittered grid seed points, computes nearest-neighbor distance fields in a background Web Worker ([src/lib/worker.js](src/lib/worker.js), [src/lib/voronoi.js](src/lib/voronoi.js)), and renders **per-shard optical refraction**, **3D facet bevel lighting**, and **anti-aliased fracture borders**.
-- **Fast Re-rendering**: Caches Voronoi distance fields and source pixels so refraction, bevel, border, and blend adjustments re-render without recomputing cell geometry.
-- **Presets**: Six one-click presets (`Prism`, `Glass`, `Mosaic`, `Low Poly`, `Cracked`, `Fine`) in [src/components/Sidebar.svelte](src/components/Sidebar.svelte).
-- **Designer Workflow**: Built-in procedural sample artwork for instant testing, plus **Hold to compare** (`C` key or HUD button) to inspect the original image against the shattered output.
-- **Blend Overlay**: Composite a second image over the Voronoi cells using `Normal`, `Multiply`, `Screen`, `Overlay`, or `Soft Light` blend modes with adjustable opacity.
-- **Export**: Download the rendered canvas as `PNG`, `JPEG`, or `WebP` (with configurable quality for lossy formats).
+- **Voronoi Shatter Engine**: Generates jittered grid or radial impact-clustered seed points, computes nearest-neighbor distance fields in a background Web Worker ([src/lib/worker.js](src/lib/worker.js), [src/lib/voronoi.js](src/lib/voronoi.js)), and renders **per-shard optical refraction**, **3D facet bevel lighting**, **RGB chromatic dispersion**, and **anti-aliased fracture borders**.
+- **Interactive Impact Epicenter**: Click anywhere on the canvas to fracture radially from that point, or reset back to a uniform grid.
+- **Fast Re-rendering**: Caches Voronoi distance fields and source pixels so refraction, bevel, dispersion, border, and blend adjustments re-render without recomputing cell geometry.
+- **Presets & Themes**: Six one-click presets (`Prism`, `Glass`, `Mosaic`, `Low Poly`, `Cracked`, `Fine`) plus Editorial Light and Darkroom studio themes.
+- **Designer Workflow**: Built-in procedural sample artwork, drag-and-drop replacement anywhere on the canvas, **Hold to compare** (`C` key or HUD button), one-click **Copy** PNG to clipboard, and `PNG`/`JPEG`/`WebP` export.
 
 ## Keyboard Shortcuts
 

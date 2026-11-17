@@ -161,7 +161,36 @@
   function handleGeoChange() { clearTimeout(processTimer); processTimer = setTimeout(startFull, 120); }
   function handleBorderChange() { clearTimeout(processTimer); processTimer = setTimeout(startRender, 80); }
   function handleBlendChange() { clearTimeout(processTimer); processTimer = setTimeout(startRender, 80); }
-  function handleRegenerate() { clearTimeout(processTimer); if (appState.srcData) startFull(); }
+
+  function handleRegenerate() {
+    clearTimeout(processTimer);
+    appState.params.seed = Math.floor(Math.random() * 1e9) + 1;
+    if (appState.srcData) startFull();
+  }
+
+  function handleImpact(x, y) {
+    clearTimeout(processTimer);
+    appState.params.impact = { x, y };
+    if (appState.srcData) startFull();
+  }
+
+  function handleClearImpact() {
+    clearTimeout(processTimer);
+    appState.params.impact = null;
+    if (appState.srcData) startFull();
+  }
+
+  async function handleCopy() {
+    if (!canvasEl || !navigator.clipboard?.write || typeof ClipboardItem === 'undefined') return false;
+    try {
+      const blob = await new Promise((resolve) => canvasEl.toBlob(resolve, 'image/png'));
+      if (!blob) return false;
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
   function handleDownload() {
     if (!canvasEl) return;
@@ -228,8 +257,10 @@
       appState.params.jitter = 75;
       appState.params.refraction = 45;
       appState.params.bevel = 40;
+      appState.params.dispersion = 20;
       appState.params.borderWidth = 1.5;
       appState.params.borderColor = '#0b0c0f';
+      appState.params.impact = null;
       handleGeoChange();
     }
   }
@@ -249,6 +280,8 @@
       onBorderChange={handleBorderChange}
       onRegenerate={handleRegenerate}
       onDownload={handleDownload}
+      onCopy={handleCopy}
+      onClearImpact={handleClearImpact}
       onFile={handleFile}
       onBlendFile={handleBlendFile}
       onBlendRemove={handleBlendRemove}
@@ -260,8 +293,10 @@
       hasImage={appState.hasImage}
       processing={appState.processing}
       srcData={appState.srcData}
+      impact={appState.params.impact}
       onFile={handleFile}
       onSample={handleSample}
+      onImpact={handleImpact}
     />
   </main>
 </div>

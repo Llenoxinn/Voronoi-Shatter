@@ -65,7 +65,7 @@
   }
 </script>
 
-<aside class="w-full md:w-[300px] max-h-[45vh] md:max-h-none shrink-0 flex flex-col bg-studio-panel border-b md:border-b-0 md:border-r border-studio-border">
+<aside class="order-2 md:order-1 w-full md:w-[300px] h-[44dvh] md:h-auto shrink-0 flex flex-col bg-studio-panel border-t md:border-t-0 md:border-r border-studio-border">
   <div class="flex-1 overflow-y-auto overscroll-contain px-4 py-4 space-y-5">
 
     <!-- Source Image -->
@@ -177,7 +177,7 @@
           type="button"
           onclick={() => blendFileInput.click()}
           disabled={!appState.hasImage}
-          class="w-full h-9 rounded-lg text-[11px] font-mono text-studio-muted border border-dashed border-studio-border-strong hover:border-studio-accent/50 hover:text-studio-ink disabled:opacity-35 disabled:cursor-not-allowed enabled:active:scale-[0.96] transition-[border-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+          class="w-full h-11 md:h-9 rounded-lg text-[11px] font-mono text-studio-muted border border-dashed border-studio-border-strong hover:border-studio-accent/50 hover:text-studio-ink disabled:opacity-35 disabled:cursor-not-allowed enabled:active:scale-[0.96] transition-[border-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
         >
           + Add blend image
         </button>
@@ -214,7 +214,7 @@
           type="button"
           onclick={onRegenerate}
           disabled={!appState.hasImage || appState.processing}
-          class="flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-lg text-[11px] font-mono uppercase tracking-[0.08em] bg-studio-accent text-studio-accent-ink font-medium hover:opacity-90 enabled:active:scale-[0.96] disabled:opacity-25 disabled:cursor-not-allowed transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+          class="flex-1 inline-flex items-center justify-center gap-1.5 h-11 md:h-9 rounded-lg text-[11px] font-mono uppercase tracking-[0.08em] bg-studio-accent text-studio-accent-ink font-medium hover:opacity-90 enabled:active:scale-[0.96] disabled:opacity-25 disabled:cursor-not-allowed transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
         >
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="23 4 23 10 17 10" />
@@ -226,7 +226,7 @@
           type="button"
           onclick={onDownload}
           disabled={!appState.hasImage}
-          class="flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-lg text-[11px] font-mono uppercase tracking-[0.08em] bg-studio-elevated text-studio-ink border border-studio-border-strong hover:border-studio-accent/50 enabled:active:scale-[0.96] disabled:opacity-25 disabled:cursor-not-allowed transition-[border-color,transform,opacity] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+          class="flex-1 inline-flex items-center justify-center gap-1.5 h-11 md:h-9 rounded-lg text-[11px] font-mono uppercase tracking-[0.08em] bg-studio-elevated text-studio-ink border border-studio-border-strong hover:border-studio-accent/50 enabled:active:scale-[0.96] disabled:opacity-25 disabled:cursor-not-allowed transition-[border-color,transform,opacity] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
         >
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

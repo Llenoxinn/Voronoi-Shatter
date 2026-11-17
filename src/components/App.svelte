@@ -241,7 +241,7 @@
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
 
-<div class="flex flex-col h-screen bg-studio-bg text-studio-ink select-none">
+<div class="flex flex-col h-[100dvh] bg-studio-bg text-studio-ink select-none">
   <Header hasImage={appState.hasImage} processing={appState.processing} />
   <main class="flex flex-col md:flex-row flex-1 overflow-hidden">
     <Sidebar

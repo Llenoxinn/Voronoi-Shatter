@@ -31,14 +31,14 @@
 
 <section
   aria-label="Canvas workspace"
-  class="flex-1 flex items-center justify-center relative overflow-hidden bg-studio-bg"
+  class="order-1 md:order-2 flex-1 min-h-[240px] flex items-center justify-center relative overflow-hidden bg-studio-bg"
   style="background-image: radial-gradient(circle at 50% 45%, var(--studio-glow), transparent 55%), radial-gradient(var(--studio-grid-dot) 1px, transparent 1px); background-size: 100% 100%, 24px 24px;"
 >
   {#if !hasImage}
     <UploadZone {onFile} {onSample} />
   {/if}
 
-  <div class="relative flex items-center justify-center w-full h-full p-6 md:p-10">
+  <div class="relative flex items-center justify-center w-full h-full p-3 sm:p-6 md:p-10">
     <canvas
       bind:this={canvas}
       class="block max-w-full max-h-full rounded-xl ring-1 ring-black/10 dark:ring-white/10 shadow-[0_20px_50px_rgba(20,20,24,0.12)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] transition-opacity duration-200 ease-[var(--ease-out)]"
@@ -67,7 +67,7 @@
         onpointerup={() => (comparing = false)}
         onpointerleave={() => (comparing = false)}
         onpointercancel={() => (comparing = false)}
-        class="px-3 py-1.5 rounded-full bg-studio-panel/90 backdrop-blur-md border text-[10px] font-mono uppercase tracking-[0.1em] active:scale-[0.96] transition-[border-color,color,transform] duration-150 ease-[var(--ease-out)] {comparing
+        class="px-4 py-2.5 md:px-3 md:py-1.5 rounded-full bg-studio-panel/90 backdrop-blur-md border text-[10px] font-mono uppercase tracking-[0.1em] active:scale-[0.96] transition-[border-color,color,transform] duration-150 ease-[var(--ease-out)] {comparing
           ? 'border-studio-accent text-studio-accent'
           : 'border-studio-border text-studio-ink hover:border-studio-border-strong'}"
       >

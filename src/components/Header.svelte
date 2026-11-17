@@ -42,7 +42,7 @@
       onclick={toggleTheme}
       aria-label={isDark ? 'Switch to light studio theme' : 'Switch to darkroom theme'}
       title={isDark ? 'Light Studio' : 'Darkroom'}
-      class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-studio-border bg-studio-elevated text-studio-muted hover:text-studio-ink hover:border-studio-border-strong active:scale-[0.96] transition-[color,border-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+      class="inline-flex items-center justify-center w-11 h-11 md:w-8 md:h-8 rounded-lg border border-studio-border bg-studio-elevated text-studio-muted hover:text-studio-ink hover:border-studio-border-strong active:scale-[0.96] transition-[color,border-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
     >
       {#if isDark}
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

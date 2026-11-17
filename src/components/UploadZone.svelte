@@ -42,10 +42,10 @@
   ondragleave={handleDragLeave}
   ondrop={handleDrop}
   onclick={handleClick}
-  class="absolute inset-0 z-20 flex items-center justify-center p-6 cursor-pointer focus-visible:outline-none"
+  class="absolute inset-0 z-20 flex items-center justify-center p-4 sm:p-6 cursor-pointer focus-visible:outline-none"
 >
   <div
-    class="flex flex-col items-center justify-center w-full max-w-md px-8 py-12 rounded-2xl border border-dashed shadow-sm transition-[border-color,background-color,transform] duration-200 ease-[var(--ease-out)] {isDragOver
+    class="flex flex-col items-center justify-center w-full max-w-md px-5 py-7 sm:px-8 sm:py-12 rounded-2xl border border-dashed shadow-sm transition-[border-color,background-color,transform] duration-200 ease-[var(--ease-out)] {isDragOver
       ? 'border-studio-accent bg-studio-accent-soft scale-[1.01]'
       : 'border-studio-border-strong bg-studio-panel/85 backdrop-blur-sm hover:border-studio-accent/50 hover:bg-studio-panel'}"
   >

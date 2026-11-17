@@ -8,10 +8,12 @@
   }
 </script>
 
-<div class="flex flex-col gap-1.5">
-  <label for={id} class="text-xs font-medium text-white/40 tracking-wide">Border Color</label>
-  <div class="flex items-center gap-3">
-    <input {id} type="color" value={value} oninput={handleInput} class="shrink-0" />
-    <span class="font-mono text-xs text-white/30">{value}</span>
+<div class="flex items-center justify-between p-2 rounded-lg bg-studio-elevated border border-studio-border">
+  <div class="flex items-center gap-2.5">
+    <input {id} type="color" value={value} oninput={handleInput} aria-label="Border color" class="shrink-0" />
+    <div class="flex flex-col">
+      <label for={id} class="text-[11px] font-medium text-studio-muted cursor-pointer">Border Color</label>
+      <span class="font-mono text-[11px] text-studio-ink uppercase tabular-nums">{value}</span>
+    </div>
   </div>
 </div>

@@ -1,6 +1,6 @@
 <script>
   let id = `sld-${Math.random().toString(36).slice(2, 9)}`;
-  let { label, value = $bindable(), min = 0, max = 100, step = 1, onchange } = $props();
+  let { label, value = $bindable(), min = 0, max = 100, step = 1, unit = '', onchange } = $props();
 
   function handleInput(e) {
     const v = parseFloat(e.target.value);
@@ -9,12 +9,10 @@
   }
 </script>
 
-<div class="flex flex-col gap-1.5">
+<div class="flex flex-col gap-2">
   <div class="flex items-center justify-between">
-    <label for={id} class="text-xs font-medium text-white/40 tracking-wide">{label}</label>
-    <span class="font-mono text-[11px] font-semibold text-white/70 bg-white/[0.04] px-2 py-0.5 rounded min-w-[32px] text-center tabular-nums">
-      {value}
-    </span>
+    <label for={id} class="text-[11px] font-medium text-studio-muted">{label}</label>
+    <span class="font-mono text-[11px] text-studio-ink tabular-nums">{value}{unit}</span>
   </div>
   <input
     {id}
@@ -24,6 +22,7 @@
     {step}
     value={value}
     oninput={handleInput}
+    aria-label={label}
     class="w-full"
   />
 </div>

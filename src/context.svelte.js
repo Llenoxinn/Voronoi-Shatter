@@ -9,7 +9,18 @@ export function createAppState() {
     srcHeight: 0,
     hasImage: false,
     processing: false,
-    params: { cellCount: 50, jitter: 70, borderWidth: 2, borderColor: '#000000' },
+    params: {
+      cellCount: 80,
+      jitter: 75,
+      refraction: 45,
+      bevel: 40,
+      borderWidth: 1.5,
+      borderColor: '#0b0c0f',
+      blendMode: 'normal',
+      blendOpacity: 50,
+      exportFormat: 'png',
+      exportQuality: 92,
+    },
     seeds: [],
     cachedNearest: null,
     cachedDist1Sq: null,
@@ -17,6 +28,8 @@ export function createAppState() {
     cachedAvgColors: null,
     cachedWidth: 0,
     cachedHeight: 0,
+    blendData: null,
+    hasBlend: false,
   });
 
   setContext(KEY, state);

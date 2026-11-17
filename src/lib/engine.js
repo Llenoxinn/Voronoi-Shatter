@@ -16,11 +16,15 @@ export function setOnResult(callback) {
   onResult = callback;
 }
 
-export function requestFullProcess(srcData, params) {
+export function requestFullProcess(srcData, params, blendData) {
   const id = ++processId;
   const w = getWorker();
 
   const pixels = new Uint8ClampedArray(srcData.data);
+  const blendPixels = blendData ? new Uint8ClampedArray(blendData.data) : null;
+
+  const transferables = [pixels.buffer];
+  if (blendPixels) transferables.push(blendPixels.buffer);
 
   w.postMessage({
     type: 'full', id,
@@ -29,13 +33,14 @@ export function requestFullProcess(srcData, params) {
       width: srcData.width,
       height: srcData.height,
       params: { ...params },
+      blendPixels: blendPixels ? blendPixels.buffer : null,
     },
-  }, [pixels.buffer]);
+  }, transferables);
 
   return id;
 }
 
-export function requestRenderOnly(cached, params) {
+export function requestRenderOnly(cached, params, blendData) {
   const id = ++processId;
   const w = getWorker();
 
@@ -43,6 +48,10 @@ export function requestRenderOnly(cached, params) {
   const copyD1 = new Float32Array(cached.dist1Sq);
   const copyD2 = new Float32Array(cached.dist2Sq);
   const copyAC = new Uint8ClampedArray(cached.avgColors);
+  const blendPixels = blendData ? new Uint8ClampedArray(blendData.data) : null;
+
+  const transferables = [copyNS.buffer, copyD1.buffer, copyD2.buffer, copyAC.buffer];
+  if (blendPixels) transferables.push(blendPixels.buffer);
 
   w.postMessage({
     type: 'render', id,
@@ -54,8 +63,9 @@ export function requestRenderOnly(cached, params) {
       width: cached.width,
       height: cached.height,
       params: { ...params },
+      blendPixels: blendPixels ? blendPixels.buffer : null,
     },
-  }, [copyNS.buffer, copyD1.buffer, copyD2.buffer, copyAC.buffer]);
+  }, transferables);
 
   return id;
 }

@@ -11,7 +11,7 @@
 
 ## UI Conventions
 
-- **Palette**: Dark studio theme defined in [tailwind.config.js](tailwind.config.js) (`studio-bg`, `studio-panel`, `studio-elevated`, `studio-ink`, `studio-muted`, `studio-accent`).
+- **Palette**: Editorial Light (default) and Darkroom (`.dark`) themes defined via CSS variables in [src/app.css](src/app.css) and mapped in [tailwind.config.js](tailwind.config.js) (`studio-bg`, `studio-panel`, `studio-elevated`, `studio-ink`, `studio-muted`, `studio-accent`).
 - **Motion**: Use explicit transition properties (`transition-colors`, `transition-transform`, `transition-opacity`) with `--ease-out` (`cubic-bezier(0.23, 1, 0.32, 1)`) from [src/app.css](src/app.css) and keep UI durations under `300ms`. Respect `prefers-reduced-motion`.
 - **Icons**: Use inline geometric SVGs (`aria-hidden="true"`) rather than emoji characters.
 

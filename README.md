@@ -103,11 +103,12 @@ src/
 ├── context.svelte.js         # Shared Svelte 5 $state context & toggleTheme()
 ├── components/
 │   ├── App.svelte            # View switching (landing/studio), embed bridge, worker orchestration
-│   ├── LandingPage.svelte    # Landing page with live hero demo (metrics/wireframe/cells/SVG) & plugin ZIP download
-│   ├── Header.svelte         # Minimal top bar with home link, Replace image, and ThemeToggle
+│   ├── LandingPage.svelte    # Landing page with embedded 4-zone Pro Studio hero demo & plugin ZIP download
+│   ├── Header.svelte         # Top workstation bar (Open, Sample, Reset, spec pill, Copy PNG, Export/Insert)
 │   ├── ThemeToggle.svelte    # Shared Gallery Stone / Darkroom theme switch
-│   ├── CanvasArea.svelte     # Full-bleed stage, alpha checkerboard, Fit/100% zoom, impact marker, drag-replace, compare
-│   ├── Sidebar.svelte        # Bottom-docked studio bar, numeric Seed input, embed Insert, & tabbed tray
+│   ├── ToolRail.svelte       # Left vertical workstation tool dock (Impact, Compare, Reseed, Cutout, Wireframe)
+│   ├── CanvasArea.svelte     # Matte pasteboard viewport, alpha checkerboard, Fit/100% zoom, impact marker, drag-replace
+│   ├── Sidebar.svelte        # Right-docked Pro Inspector (Presets, Geometry, Seed, Optics, Blend, Export Format)
 │   ├── UploadZone.svelte     # Asymmetric viewfinder dropzone & sample artwork loader
 │   ├── LoadingOverlay.svelte # Processing status overlay
 │   ├── ControlSlider.svelte  # Labeled range slider with $props.id(), progress track, and tabular-nums

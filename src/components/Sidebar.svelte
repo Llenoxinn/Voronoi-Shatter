@@ -138,14 +138,30 @@
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label for="blend-mode-select" class="text-xs font-medium text-studio-muted">Mode</label>
-            <select id="blend-mode-select" bind:value={appState.params.blendMode} onchange={onBlendChange}>
-              <option value="normal">Normal</option>
-              <option value="multiply">Multiply</option>
-              <option value="screen">Screen</option>
-              <option value="overlay">Overlay</option>
-              <option value="soft-light">Soft Light</option>
-            </select>
+            <span class="text-xs font-medium text-studio-muted">Mode</span>
+            <div class="grid grid-cols-3 gap-1">
+              {#each [
+                { id: 'normal', label: 'Normal' },
+                { id: 'multiply', label: 'Multiply' },
+                { id: 'screen', label: 'Screen' },
+                { id: 'overlay', label: 'Overlay' },
+                { id: 'soft-light', label: 'Soft Light' },
+              ] as mode}
+                {@const active = appState.params.blendMode === mode.id}
+                <button
+                  type="button"
+                  onclick={() => {
+                    appState.params.blendMode = mode.id;
+                    onBlendChange();
+                  }}
+                  class="px-2 py-1.5 rounded-lg text-[11px] font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {active
+                    ? 'bg-studio-ink text-studio-bg border-studio-ink'
+                    : 'bg-studio-elevated/60 text-studio-muted border-studio-border hover:text-studio-ink hover:border-studio-border-strong'}"
+                >
+                  {mode.label}
+                </button>
+              {/each}
+            </div>
           </div>
 
           <ControlSlider label="Opacity" bind:value={appState.params.blendOpacity} min={0} max={100} step={1} unit="%" onchange={onBlendChange} />
@@ -163,18 +179,31 @@
 
       <!-- Export -->
       <section class="pt-3.5 pb-1 space-y-3">
-        <h2 class="text-xs font-semibold text-studio-ink">Export</h2>
-        <div class="flex items-center gap-2">
-          <select bind:value={appState.params.exportFormat} aria-label="Export format" class="flex-1">
-            <option value="png">PNG</option>
-            <option value="jpeg">JPEG</option>
-            <option value="webp">WebP</option>
-          </select>
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-semibold text-studio-ink">Export</h2>
           {#if appState.params.exportFormat !== 'png'}
-            <span class="px-2 py-1 rounded-md bg-studio-elevated font-mono text-xs font-semibold text-studio-ink tabular-nums">
+            <span class="px-2 py-0.5 rounded-md bg-studio-elevated font-mono text-xs font-semibold text-studio-ink tabular-nums">
               {appState.params.exportQuality}%
             </span>
           {/if}
+        </div>
+        <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-studio-elevated border border-studio-border" role="group" aria-label="Export format">
+          {#each [
+            { id: 'png', label: 'PNG' },
+            { id: 'jpeg', label: 'JPEG' },
+            { id: 'webp', label: 'WebP' },
+          ] as fmt}
+            {@const active = appState.params.exportFormat === fmt.id}
+            <button
+              type="button"
+              onclick={() => (appState.params.exportFormat = fmt.id)}
+              class="h-8 rounded-lg text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {active
+                ? 'bg-studio-panel text-studio-ink shadow-sm'
+                : 'text-studio-muted hover:text-studio-ink'}"
+            >
+              {fmt.label}
+            </button>
+          {/each}
         </div>
 
         {#if appState.params.exportFormat !== 'png'}

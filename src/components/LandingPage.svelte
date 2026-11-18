@@ -218,44 +218,65 @@
                 </button>
               {/each}
             </div>
-            <span class="text-xs text-studio-subtle">Click artwork to move impact</span>
+            <span class="hidden sm:inline text-xs text-studio-subtle">Click artwork to move impact</span>
+            <button
+              type="button"
+              onclick={() => {
+                heroSeed = (heroSeed + 7919) % 999983;
+                renderHero();
+              }}
+              class="px-2.5 py-1 rounded-md text-xs font-medium text-studio-ink bg-studio-elevated hover:bg-studio-border active:scale-[0.96] transition-[background-color,transform] duration-150"
+            >
+              Reseed
+            </button>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Architectural Hairline Strip (No boxed card grid) -->
+  <!-- Asymmetric Editorial Breakdown (replaces generic 3-column feature row) -->
   <section id="optics" class="border-t border-b border-studio-border bg-studio-panel/50">
-    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-studio-border">
-      <div class="px-5 sm:px-8 py-12">
-        <span class="font-mono text-xs font-semibold text-studio-accent tabular-nums">01</span>
-        <h2 class="font-semibold text-lg tracking-tight text-studio-ink mt-3">
-          Optical refraction &amp; dispersion
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+      <div class="lg:col-span-5">
+        <h2 class="font-semibold text-3xl sm:text-4xl leading-[1.08] tracking-[-0.03em] text-studio-ink text-balance">
+          Built for designers who hate flat polygon filters.
         </h2>
-        <p class="mt-2 text-sm text-studio-muted leading-relaxed text-pretty">
-          Displaces sampled pixels per cell and splits red and blue channels for prism glass edges.
+        <p class="mt-4 text-sm sm:text-base text-studio-muted leading-relaxed max-w-[38ch] text-pretty">
+          Every shard refracts, bevels, and splits light locally in a Web Worker—no uploads, no waiting.
         </p>
       </div>
 
-      <div class="px-5 sm:px-8 py-12">
-        <span class="font-mono text-xs font-semibold text-studio-accent tabular-nums">02</span>
-        <h2 class="font-semibold text-lg tracking-tight text-studio-ink mt-3">
-          Radial impact clustering
-        </h2>
-        <p class="mt-2 text-sm text-studio-muted leading-relaxed text-pretty">
-          Click anywhere on your artwork to fracture radially from a focal point, or reset to a grid.
-        </p>
-      </div>
+      <div class="lg:col-span-7 divide-y divide-studio-border border-t border-b border-studio-border">
+        <div class="py-5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <div class="flex items-baseline gap-4">
+            <span class="font-mono text-xs font-semibold text-studio-accent tabular-nums">01</span>
+            <h3 class="font-semibold text-base text-studio-ink">Optical refraction &amp; RGB dispersion</h3>
+          </div>
+          <p class="text-sm text-studio-muted sm:max-w-[34ch] sm:text-right">
+            Displaces sampled pixels per cell and splits red/blue channels along shard edges.
+          </p>
+        </div>
 
-      <div class="px-5 sm:px-8 py-12">
-        <span class="font-mono text-xs font-semibold text-studio-accent tabular-nums">03</span>
-        <h2 class="font-semibold text-lg tracking-tight text-studio-ink mt-3">
-          Cached worker &amp; Figma copy
-        </h2>
-        <p class="mt-2 text-sm text-studio-muted leading-relaxed text-pretty">
-          Distance fields stay cached in a Web Worker for instant slider tuning and 1-click clipboard copy.
-        </p>
+        <div class="py-5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <div class="flex items-baseline gap-4">
+            <span class="font-mono text-xs font-semibold text-studio-accent tabular-nums">02</span>
+            <h3 class="font-semibold text-base text-studio-ink">Radial impact clustering</h3>
+          </div>
+          <p class="text-sm text-studio-muted sm:max-w-[34ch] sm:text-right">
+            Click anywhere on your artwork to fracture radially from a focal point, or reset to grid.
+          </p>
+        </div>
+
+        <div class="py-5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <div class="flex items-baseline gap-4">
+            <span class="font-mono text-xs font-semibold text-studio-accent tabular-nums">03</span>
+            <h3 class="font-semibold text-base text-studio-ink">Cached worker &amp; Figma copy</h3>
+          </div>
+          <p class="text-sm text-studio-muted sm:max-w-[34ch] sm:text-right">
+            Distance fields stay cached for instant slider tuning and 1-click clipboard PNG copy.
+          </p>
+        </div>
       </div>
     </div>
   </section>

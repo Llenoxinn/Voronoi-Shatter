@@ -69,7 +69,7 @@
         <button
           type="button"
           onclick={() => fileInput.click()}
-          class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-studio-elevated/70 hover:bg-studio-elevated border border-studio-border hover:border-studio-border-strong active:scale-[0.96] transition-[background-color,border-color,transform] duration-150 ease-[var(--ease-out)] text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+          class="w-full min-h-[44px] md:min-h-0 flex items-center justify-between px-3 py-2.5 rounded-lg bg-studio-elevated/70 hover:bg-studio-elevated border border-studio-border hover:border-studio-border-strong active:scale-[0.96] transition-[background-color,border-color,transform] duration-150 ease-[var(--ease-out)] text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
         >
           <span class="text-xs font-medium text-studio-ink">Replace image</span>
           <span class="text-xs text-studio-muted">Browse</span>
@@ -154,7 +154,7 @@
                     appState.params.blendMode = mode.id;
                     onBlendChange();
                   }}
-                  class="px-2 py-1.5 rounded-lg text-[11px] font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {active
+                  class="min-h-[44px] md:min-h-0 px-2 py-1.5 rounded-lg text-[11px] font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {active
                     ? 'bg-studio-ink text-studio-bg border-studio-ink'
                     : 'bg-studio-elevated/60 text-studio-muted border-studio-border hover:text-studio-ink hover:border-studio-border-strong'}"
                 >
@@ -197,7 +197,7 @@
             <button
               type="button"
               onclick={() => (appState.params.exportFormat = fmt.id)}
-              class="h-8 rounded-lg text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {active
+              class="h-11 md:h-8 rounded-lg text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {active
                 ? 'bg-studio-panel text-studio-ink shadow-sm'
                 : 'text-studio-muted hover:text-studio-ink'}"
             >
@@ -215,21 +215,21 @@
             type="button"
             onclick={onRegenerate}
             disabled={appState.processing}
-            class="flex-1 inline-flex items-center justify-center h-10 md:h-9 rounded-lg text-xs font-medium bg-studio-accent text-studio-accent-ink hover:opacity-90 enabled:active:scale-[0.96] disabled:opacity-30 disabled:cursor-not-allowed transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+            class="flex-1 inline-flex items-center justify-center h-11 md:h-9 rounded-lg text-xs font-medium bg-studio-accent text-studio-accent-ink hover:opacity-90 enabled:active:scale-[0.96] disabled:opacity-30 disabled:cursor-not-allowed transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
           >
             Reseed
           </button>
           <button
             type="button"
             onclick={handleCopyClick}
-            class="px-3 h-10 md:h-9 rounded-lg text-xs font-medium bg-studio-elevated text-studio-ink border border-studio-border hover:border-studio-border-strong active:scale-[0.96] transition-[border-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+            class="px-3 h-11 md:h-9 rounded-lg text-xs font-medium bg-studio-elevated text-studio-ink border border-studio-border hover:border-studio-border-strong active:scale-[0.96] transition-[border-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
           >
             {copied ? 'Copied' : 'Copy'}
           </button>
           <button
             type="button"
             onclick={onDownload}
-            class="flex-1 inline-flex items-center justify-center h-10 md:h-9 rounded-lg text-xs font-medium bg-studio-ink text-studio-bg hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+            class="flex-1 inline-flex items-center justify-center h-11 md:h-9 rounded-lg text-xs font-medium bg-studio-ink text-studio-bg hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
           >
             Export
           </button>

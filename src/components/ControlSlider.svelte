@@ -2,6 +2,10 @@
   const id = $props.id();
   let { label, value = $bindable(), min = 0, max = 100, step = 1, unit = '', onchange } = $props();
 
+  const pct = $derived(
+    max > min ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : 0
+  );
+
   function handleInput(e) {
     const v = parseFloat(e.target.value);
     value = v;
@@ -10,9 +14,11 @@
 </script>
 
 <div class="flex flex-col gap-2">
-  <div class="flex items-center justify-between">
-    <label for={id} class="text-[11px] font-medium text-studio-muted">{label}</label>
-    <span class="font-mono text-[11px] text-studio-ink tabular-nums">{value}{unit}</span>
+  <div class="flex items-center justify-between gap-2">
+    <label for={id} class="text-xs font-medium text-studio-muted">{label}</label>
+    <span class="inline-flex items-baseline gap-0.5 px-2 py-0.5 rounded-md bg-studio-elevated font-mono text-xs font-semibold text-studio-ink tabular-nums">
+      {value}{#if unit}<span class="text-[10px] font-normal text-studio-muted">{unit}</span>{/if}
+    </span>
   </div>
   <input
     {id}
@@ -24,5 +30,6 @@
     oninput={handleInput}
     aria-label={label}
     class="w-full"
+    style="background: linear-gradient(to right, var(--studio-accent) 0%, var(--studio-accent) {pct}%, var(--studio-track) {pct}%, var(--studio-track) 100%);"
   />
 </div>

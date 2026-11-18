@@ -2,7 +2,7 @@
   const id = $props.id();
   let { value = $bindable(), onchange } = $props();
 
-  const SWATCHES = ['#0b0c0f', '#ffffff', '#6d4aff', '#f59e0b'];
+  const SWATCHES = ['#111113', '#f4f3ef', '#d94826', '#0d9488'];
 
   function handleInput(e) {
     value = e.target.value;

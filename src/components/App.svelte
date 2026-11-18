@@ -331,10 +331,6 @@
   <div class="relative flex flex-col h-[100dvh] bg-studio-bg text-studio-ink select-none overflow-hidden">
     <Header
       hasImage={appState.hasImage}
-      processing={appState.processing}
-      width={appState.srcWidth}
-      height={appState.srcHeight}
-      cellCount={appState.seeds.length}
       bind:inspectorOpen
       onHome={() => (view = 'landing')}
     />

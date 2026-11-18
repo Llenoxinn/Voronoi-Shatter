@@ -3,6 +3,7 @@
   import { createAppState } from '../context.svelte.js';
   import LandingPage from './LandingPage.svelte';
   import Header from './Header.svelte';
+  import ToolRail from './ToolRail.svelte';
   import Sidebar from './Sidebar.svelte';
   import CanvasArea from './CanvasArea.svelte';
   import { setOnResult, requestFullProcess, requestRenderOnly } from '../lib/engine.js';
@@ -362,6 +363,36 @@
     handleSample();
   }
 
+  function handleResetParams() {
+    clearTimeout(processTimer);
+    appState.params.cellCount = 80;
+    appState.params.jitter = 75;
+    appState.params.refraction = 45;
+    appState.params.bevel = 40;
+    appState.params.dispersion = 20;
+    appState.params.borderWidth = 1.5;
+    appState.params.borderColor = '#111113';
+    appState.params.metric = 'euclidean';
+    appState.params.transparentBorder = false;
+    appState.params.wireframe = false;
+    appState.params.impact = null;
+    if (appState.srcData) startFull();
+  }
+
+  function handleOpenDemoInStudio(demoState) {
+    if (demoState) {
+      if (typeof demoState.cellCount === 'number') appState.params.cellCount = demoState.cellCount;
+      if (typeof demoState.metric === 'string') appState.params.metric = demoState.metric;
+      if (typeof demoState.wireframe === 'boolean') appState.params.wireframe = demoState.wireframe;
+      if (typeof demoState.refraction === 'number') appState.params.refraction = demoState.refraction;
+      if (typeof demoState.bevel === 'number') appState.params.bevel = demoState.bevel;
+      if (typeof demoState.dispersion === 'number') appState.params.dispersion = demoState.dispersion;
+      if (demoState.impact) appState.params.impact = { x: demoState.impact.x, y: demoState.impact.y };
+      if (typeof demoState.seed === 'number') appState.params.seed = demoState.seed;
+    }
+    handleSample();
+  }
+
   function handleKeydown(e) {
     if (view !== 'studio') return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
@@ -370,18 +401,7 @@
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); handleDownload(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
       e.preventDefault();
-      appState.params.cellCount = 80;
-      appState.params.jitter = 75;
-      appState.params.refraction = 45;
-      appState.params.bevel = 40;
-      appState.params.dispersion = 20;
-      appState.params.borderWidth = 1.5;
-      appState.params.borderColor = '#111113';
-      appState.params.metric = 'euclidean';
-      appState.params.transparentBorder = false;
-      appState.params.wireframe = false;
-      appState.params.impact = null;
-      handleGeoChange();
+      handleResetParams();
     }
   }
 
@@ -397,6 +417,7 @@
     presets={PRESETS}
     onOpenStudio={() => (view = 'studio')}
     onOpenSample={handleSample}
+    onOpenDemo={handleOpenDemoInStudio}
     onOpenPreset={handleOpenPreset}
     onFile={handleFile}
   />
@@ -404,10 +425,27 @@
   <div class="relative flex flex-col h-[100dvh] bg-studio-bg text-studio-ink select-none overflow-hidden">
     <Header
       hasImage={appState.hasImage}
+      width={appState.srcWidth}
+      height={appState.srcHeight}
+      cellCount={appState.seeds.length}
+      metric={appState.params.metric}
+      exportFormat={appState.params.exportFormat}
+      isEmbed={isEmbedMode()}
       onHome={() => (view = 'landing')}
       onFile={handleFile}
+      onSample={handleSample}
+      onReset={handleResetParams}
+      onCopy={handleCopy}
+      onDownload={handleDownload}
+      onSendToHost={handleSendToHost}
     />
-    <main class="relative flex flex-1 w-full h-full overflow-hidden">
+    <main class="relative flex flex-col md:flex-row flex-1 w-full h-full overflow-hidden">
+      <ToolRail
+        bind:comparing
+        onRegenerate={handleRegenerate}
+        onClearImpact={handleClearImpact}
+        onBorderChange={handleBorderChange}
+      />
       <CanvasArea
         bind:canvasEl
         bind:comparing
@@ -428,9 +466,6 @@
         onGeoChange={handleGeoChange}
         onBorderChange={handleBorderChange}
         onRegenerate={handleRegenerate}
-        onDownload={handleDownload}
-        onCopy={handleCopy}
-        onSendToHost={handleSendToHost}
         onClearImpact={handleClearImpact}
         onBlendFile={handleBlendFile}
         onBlendRemove={handleBlendRemove}

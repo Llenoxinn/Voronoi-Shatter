@@ -68,19 +68,19 @@
   ondragover={handleDragOver}
   ondragleave={handleDragLeave}
   ondrop={handleDrop}
-  class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden bg-studio-bg"
+  class="order-1 md:order-2 relative flex-1 min-h-[240px] flex items-center justify-center overflow-hidden bg-studio-elevated/55 dark:bg-[#0a0a0c]"
 >
   {#if !hasImage}
     <UploadZone {onFile} {onSample} />
   {/if}
 
   <div class="relative w-full h-full {hasImage && zoom100 ? 'overflow-auto' : 'overflow-hidden'}">
-    <div class="flex items-center justify-center {hasImage && zoom100 ? 'min-w-full min-h-full w-max h-max' : 'w-full h-full'} pt-6 pb-24 px-4 sm:px-10">
+    <div class="flex items-center justify-center {hasImage && zoom100 ? 'min-w-full min-h-full w-max h-max' : 'w-full h-full'} p-4 sm:p-8">
       <div class="relative flex items-center justify-center {hasImage && zoom100 ? 'max-w-none max-h-none shrink-0' : 'max-w-full max-h-full'}">
         {#if hasImage && alphaVisible}
           <div
             aria-hidden="true"
-            class="absolute inset-0 rounded-xl pointer-events-none"
+            class="absolute inset-0 rounded-lg pointer-events-none"
             style="background-color: var(--studio-elevated); background-image: conic-gradient(var(--studio-border) 90deg, transparent 90deg 180deg, var(--studio-border) 180deg 270deg, transparent 270deg); background-size: 16px 16px;"
           ></div>
         {/if}
@@ -89,7 +89,7 @@
           bind:this={canvasEl}
           onclick={handleCanvasClick}
           title={hasImage ? 'Click anywhere to set shatter impact point' : undefined}
-          class="relative block {hasImage && zoom100 ? 'max-w-none max-h-none' : 'max-w-full max-h-full'} rounded-xl ring-1 ring-black/10 dark:ring-white/10 shadow-[0_24px_60px_rgba(17,17,19,0.12)] dark:shadow-[0_28px_72px_rgba(0,0,0,0.6)] {hasImage ? 'cursor-crosshair' : 'pointer-events-none'}"
+          class="relative block {hasImage && zoom100 ? 'max-w-none max-h-none' : 'max-w-full max-h-full'} rounded-lg ring-1 ring-black/10 dark:ring-white/10 shadow-[0_20px_56px_rgba(17,17,19,0.16)] dark:shadow-[0_24px_68px_rgba(0,0,0,0.7)] {hasImage ? 'cursor-crosshair' : 'pointer-events-none'}"
           class:opacity-0={!hasImage || comparing}
         ></canvas>
 
@@ -104,7 +104,7 @@
         {#if hasImage && comparing}
           <canvas
             bind:this={compareCanvas}
-            class="absolute inset-0 z-10 w-full h-full rounded-xl ring-1 ring-studio-accent/60 shadow-[0_24px_60px_rgba(17,17,19,0.12)] pointer-events-none"
+            class="absolute inset-0 z-10 w-full h-full rounded-lg ring-1 ring-studio-accent/60 shadow-[0_20px_56px_rgba(17,17,19,0.16)] pointer-events-none"
           ></canvas>
         {/if}
       </div>
@@ -112,14 +112,15 @@
   </div>
 
   {#if hasImage}
-    <div class="absolute top-3 right-3 sm:top-4 sm:right-6 z-20 flex items-center gap-1 p-1 rounded-full bg-studio-panel/90 backdrop-blur-md border border-studio-border-strong shadow-sm">
+    <!-- Top-Right Canvas Viewport Controls -->
+    <div class="absolute top-3 right-3 z-20 flex items-center gap-1 p-1 rounded-lg bg-studio-panel/95 backdrop-blur-md border border-studio-border shadow-sm">
       <button
         type="button"
         onclick={() => (alphaOverride = !alphaVisible)}
         aria-pressed={alphaVisible}
         aria-label="Toggle transparency grid"
         title="Transparency grid"
-        class="inline-flex items-center justify-center w-9 h-9 md:w-7 md:h-7 rounded-full enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {alphaVisible
+        class="inline-flex items-center justify-center w-8 h-8 md:w-7 md:h-7 rounded-md enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {alphaVisible
           ? 'bg-studio-ink text-studio-bg'
           : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated/70'}"
       >
@@ -138,7 +139,7 @@
           type="button"
           onclick={() => (zoom100 = false)}
           aria-pressed={!zoom100}
-          class="h-9 md:h-7 px-2.5 rounded-full text-[11px] font-medium tabular-nums enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {!zoom100
+          class="h-8 md:h-7 px-2.5 rounded-md text-[11px] font-medium tabular-nums enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {!zoom100
             ? 'bg-studio-ink text-studio-bg'
             : 'text-studio-muted hover:text-studio-ink'}"
         >
@@ -148,7 +149,7 @@
           type="button"
           onclick={() => (zoom100 = true)}
           aria-pressed={zoom100}
-          class="h-9 md:h-7 px-2.5 rounded-full text-[11px] font-medium tabular-nums enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {zoom100
+          class="h-8 md:h-7 px-2.5 rounded-md text-[11px] font-medium tabular-nums enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {zoom100
             ? 'bg-studio-ink text-studio-bg'
             : 'text-studio-muted hover:text-studio-ink'}"
         >
@@ -156,17 +157,26 @@
         </button>
       </div>
     </div>
+
+    <!-- Bottom-Left Workstation Shortcut Bar -->
+    <div class="hidden sm:flex items-center gap-2.5 absolute bottom-3 left-3 z-20 px-3 py-1 rounded-md bg-studio-panel/90 backdrop-blur-md border border-studio-border text-[11px] text-studio-muted">
+      <span>Click canvas to shatter</span>
+      <span class="text-studio-border-strong">&middot;</span>
+      <span><kbd class="font-mono text-studio-ink">Space</kbd> reseed</span>
+      <span class="text-studio-border-strong">&middot;</span>
+      <span><kbd class="font-mono text-studio-ink">C</kbd> compare</span>
+    </div>
   {/if}
 
   {#if hasImage && comparing}
-    <span class="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-studio-panel border border-studio-accent/40 text-xs font-medium text-studio-accent pointer-events-none">
+    <span class="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-md bg-studio-panel border border-studio-accent/40 text-xs font-medium text-studio-accent pointer-events-none">
       Original
     </span>
   {/if}
 
   {#if hasImage && isDragOver}
-    <div class="absolute inset-4 z-40 flex items-center justify-center rounded-2xl border-2 border-dashed border-studio-accent bg-studio-bg/85 backdrop-blur-sm pointer-events-none">
-      <span class="px-4 py-2 rounded-full bg-studio-panel border border-studio-accent/40 text-xs font-medium text-studio-accent">
+    <div class="absolute inset-4 z-40 flex items-center justify-center rounded-xl border-2 border-dashed border-studio-accent bg-studio-bg/85 backdrop-blur-sm pointer-events-none">
+      <span class="px-4 py-2 rounded-lg bg-studio-panel border border-studio-accent/40 text-xs font-medium text-studio-accent">
         Drop to replace image
       </span>
     </div>

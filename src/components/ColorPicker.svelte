@@ -15,7 +15,7 @@
   }
 </script>
 
-<div class="flex items-center justify-between gap-2 p-2 rounded-lg bg-studio-elevated border border-studio-border">
+<div class="flex items-center justify-between gap-2 pt-1">
   <div class="flex items-center gap-2.5 min-w-0">
     <input {id} type="color" value={value} oninput={handleInput} aria-label="Border color" class="shrink-0" />
     <div class="flex flex-col min-w-0">

@@ -60,7 +60,7 @@
 {#if open && appState.hasImage}
   <aside
     aria-label="Inspector controls"
-    class="fixed z-30 inset-x-3 bottom-3 max-h-[46dvh] md:inset-x-auto md:top-[4.5rem] md:right-6 md:bottom-4 md:max-h-none md:w-[296px] flex flex-col rounded-2xl bg-studio-panel backdrop-blur-xl border border-studio-border shadow-[0_16px_48px_rgba(17,17,19,0.09)] dark:shadow-[0_20px_56px_rgba(0,0,0,0.55)] overflow-hidden"
+    class="fixed z-30 inset-x-3 bottom-3 max-h-[46dvh] rounded-2xl border border-studio-border shadow-[0_16px_48px_rgba(17,17,19,0.12)] md:inset-x-auto md:top-14 md:right-0 md:bottom-0 md:max-h-none md:w-[296px] md:rounded-none md:border-0 md:border-l md:border-studio-border md:shadow-none flex flex-col bg-studio-panel backdrop-blur-xl overflow-hidden"
   >
     <div class="flex-1 overflow-y-auto overscroll-contain px-4 py-3 divide-y divide-studio-border">
 

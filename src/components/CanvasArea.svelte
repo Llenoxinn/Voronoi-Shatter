@@ -70,7 +70,7 @@
 
   <div
     class="relative flex items-center justify-center w-full h-full pt-6 pb-20 px-4 sm:px-8 transition-[padding] duration-200 ease-[var(--ease-out)] {hasImage && inspectorOpen
-      ? 'md:pr-[336px]'
+      ? 'md:pr-[316px]'
       : ''}"
   >
     <div class="relative flex items-center justify-center max-w-full max-h-full">
@@ -132,7 +132,7 @@
     <!-- Bottom-Right Compare Button -->
     <div
       class="flex items-center gap-2 fixed bottom-4 right-4 sm:right-6 z-20 transition-[right] duration-200 ease-[var(--ease-out)] {inspectorOpen
-        ? 'md:right-[336px]'
+        ? 'md:right-[316px]'
         : ''}"
     >
       <button

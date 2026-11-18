@@ -30,6 +30,6 @@
     oninput={handleInput}
     aria-label={label}
     class="w-full"
-    style="background: linear-gradient(to right, var(--studio-accent) 0%, var(--studio-accent) {pct}%, var(--studio-track) {pct}%, var(--studio-track) 100%);"
+    style="background: linear-gradient(to right, var(--studio-ink) 0%, var(--studio-ink) {pct}%, var(--studio-track) {pct}%, var(--studio-track) 100%);"
   />
 </div>

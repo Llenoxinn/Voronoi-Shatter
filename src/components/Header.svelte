@@ -1,4 +1,6 @@
 <script>
+  import ThemeToggle from './ThemeToggle.svelte';
+
   let {
     hasImage = false,
     processing = false,
@@ -8,19 +10,6 @@
     inspectorOpen = $bindable(true),
     onHome,
   } = $props();
-
-  let isDark = $state(false);
-
-  function toggleTheme() {
-    const root = document.documentElement;
-    root.classList.add('theme-switching');
-    isDark = !isDark;
-    root.classList.toggle('dark', isDark);
-    void root.offsetHeight;
-    requestAnimationFrame(() => {
-      root.classList.remove('theme-switching');
-    });
-  }
 </script>
 
 <header class="fixed top-0 inset-x-0 z-30 flex items-center justify-between gap-3 px-4 pt-3 sm:px-6 sm:pt-4 pointer-events-none">
@@ -60,24 +49,7 @@
 
   <!-- Floating Instrument Controls -->
   <div class="pointer-events-auto flex items-center gap-1.5 p-1.5 rounded-2xl bg-studio-panel backdrop-blur-xl border border-studio-border shadow-[0_8px_24px_rgba(17,17,19,0.06),inset_0_1px_0_rgba(255,255,255,0.45)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)]">
-    <button
-      type="button"
-      onclick={toggleTheme}
-      aria-label={isDark ? 'Switch to light studio theme' : 'Switch to darkroom theme'}
-      title={isDark ? 'Gallery Stone' : 'Darkroom'}
-      class="inline-flex items-center justify-center w-9 h-9 md:w-8 md:h-8 rounded-lg text-studio-muted hover:text-studio-ink hover:bg-studio-elevated active:scale-[0.96] transition-[color,background-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
-    >
-      {#if isDark}
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-      {:else}
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-        </svg>
-      {/if}
-    </button>
+    <ThemeToggle />
 
     {#if hasImage}
       <button

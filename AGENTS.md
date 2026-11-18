@@ -2,8 +2,9 @@
 
 ## Stack & Architecture
 
-- **Framework**: Svelte 5 (runes `$state`, `$derived`, `$props`, `$bindable`) + Vite 6 + Tailwind CSS 3.
-- **State**: Centralized in [src/context.svelte.js](src/context.svelte.js) via `createAppState()` / `getAppState()`.
+- **Framework**: Svelte 5 (runes `$state`, `$derived`, `$props`, `$bindable`, `$props.id()`, `$effect`) + Vite 6 + Tailwind CSS 3.
+- **State**: Centralized in [src/context.svelte.js](src/context.svelte.js) via `createAppState()`, `getAppState()`, and `toggleTheme()` (avoid naming local context bindings `state` to prevent `$state` rune conflict).
+- **Lifecycle**: Clean up timers and `requestAnimationFrame` handles in `onDestroy()`.
 - **Rendering Pipeline**:
   - Geometry changes (`cellCount`, `jitter`, or `Reseed`) trigger `requestFullProcess()` in [src/lib/engine.js](src/lib/engine.js), recomputing seeds and distance fields in [src/lib/worker.js](src/lib/worker.js).
   - Appearance changes (`borderWidth`, `borderColor`, `blendMode`, `blendOpacity`) trigger `requestRenderOnly()` using cached typed arrays so sliders stay responsive.

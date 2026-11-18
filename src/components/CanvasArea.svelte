@@ -1,5 +1,4 @@
 <script>
-  import { onMount } from 'svelte';
   import UploadZone from './UploadZone.svelte';
   import LoadingOverlay from './LoadingOverlay.svelte';
 
@@ -19,13 +18,8 @@
     onPreset,
   } = $props();
 
-  let canvas;
   let compareCanvas = $state();
   let isDragOver = $state(false);
-
-  onMount(() => {
-    canvasEl = canvas;
-  });
 
   $effect(() => {
     if (comparing && compareCanvas && srcData) {
@@ -36,8 +30,8 @@
   });
 
   function handleCanvasClick(e) {
-    if (!hasImage || !canvas || !onImpact) return;
-    const rect = canvas.getBoundingClientRect();
+    if (!hasImage || !canvasEl || !onImpact) return;
+    const rect = canvasEl.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
     const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
@@ -82,7 +76,7 @@
   >
     <div class="relative flex items-center justify-center max-w-full max-h-full">
       <canvas
-        bind:this={canvas}
+        bind:this={canvasEl}
         onclick={handleCanvasClick}
         title={hasImage ? 'Click anywhere to set shatter epicenter' : undefined}
         class="block max-w-full max-h-full rounded-xl ring-1 ring-black/10 dark:ring-white/10 shadow-[0_24px_60px_rgba(17,17,19,0.14)] dark:shadow-[0_28px_72px_rgba(0,0,0,0.65)] transition-opacity duration-200 ease-[var(--ease-out)] {hasImage ? 'cursor-crosshair' : 'pointer-events-none'}"

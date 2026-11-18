@@ -1,4 +1,5 @@
 <script>
+  import { onDestroy } from 'svelte';
   import { getAppState } from '../context.svelte.js';
   import ControlSlider from './ControlSlider.svelte';
   import ColorPicker from './ColorPicker.svelte';
@@ -26,6 +27,10 @@
   let blendFileInput = $state();
   let copied = $state(false);
   let copyTimer = null;
+
+  onDestroy(() => {
+    clearTimeout(copyTimer);
+  });
 
   function handleFileChange(e) {
     if (e.target.files.length > 0) {

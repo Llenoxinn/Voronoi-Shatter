@@ -1,5 +1,5 @@
 <script>
-  let id = `clr-${Math.random().toString(36).slice(2, 9)}`;
+  const id = $props.id();
   let { value = $bindable(), onchange } = $props();
 
   const SWATCHES = ['#0b0c0f', '#ffffff', '#6d4aff', '#f59e0b'];

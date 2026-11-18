@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { generateSeeds, computeVoronoi, renderVoronoi } from '../lib/voronoi.js';
+  import ThemeToggle from './ThemeToggle.svelte';
 
   let {
     presets = [],
@@ -13,23 +14,11 @@
   let heroCanvas = $state();
   let heroImpact = $state({ x: 0.38, y: 0.44 });
   let heroSeed = $state(42071);
-  let isDark = $state(false);
   let fileInput = $state();
 
   let srcPixels = null;
   const W = 720;
   const H = 440;
-
-  function toggleTheme() {
-    const root = document.documentElement;
-    root.classList.add('theme-switching');
-    isDark = !isDark;
-    root.classList.toggle('dark', isDark);
-    void root.offsetHeight;
-    requestAnimationFrame(() => {
-      root.classList.remove('theme-switching');
-    });
-  }
 
   function buildHeroSource() {
     const oc = document.createElement('canvas');
@@ -140,23 +129,7 @@
       </nav>
 
       <div class="flex items-center gap-2">
-        <button
-          type="button"
-          onclick={toggleTheme}
-          aria-label={isDark ? 'Switch to light studio theme' : 'Switch to darkroom theme'}
-          class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-studio-border bg-studio-panel text-studio-muted hover:text-studio-ink active:scale-[0.96] transition-[color,transform] duration-150"
-        >
-          {#if isDark}
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-            </svg>
-          {:else}
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-            </svg>
-          {/if}
-        </button>
+        <ThemeToggle size="md" />
 
         <button
           type="button"

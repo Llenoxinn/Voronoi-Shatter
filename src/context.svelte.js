@@ -9,6 +9,7 @@ export function createAppState() {
     srcHeight: 0,
     hasImage: false,
     processing: false,
+    isDark: false,
     params: {
       cellCount: 80,
       jitter: 75,
@@ -41,4 +42,15 @@ export function createAppState() {
 
 export function getAppState() {
   return getContext(KEY);
+}
+
+export function toggleTheme(appState) {
+  const root = document.documentElement;
+  root.classList.add('theme-switching');
+  appState.isDark = !appState.isDark;
+  root.classList.toggle('dark', appState.isDark);
+  void root.offsetHeight;
+  requestAnimationFrame(() => {
+    root.classList.remove('theme-switching');
+  });
 }

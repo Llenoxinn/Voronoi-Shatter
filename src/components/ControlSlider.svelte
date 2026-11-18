@@ -1,5 +1,5 @@
 <script>
-  let id = `sld-${Math.random().toString(36).slice(2, 9)}`;
+  const id = $props.id();
   let { label, value = $bindable(), min = 0, max = 100, step = 1, unit = '', onchange } = $props();
 
   function handleInput(e) {

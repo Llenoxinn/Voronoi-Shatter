@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { createAppState } from '../context.svelte.js';
   import LandingPage from './LandingPage.svelte';
   import Header from './Header.svelte';
@@ -44,6 +44,11 @@
 
   onMount(() => {
     setOnResult(handleResult);
+  });
+
+  onDestroy(() => {
+    clearTimeout(processTimer);
+    if (crossfadeAnim) cancelAnimationFrame(crossfadeAnim);
   });
 
   function applyPreset(preset) {

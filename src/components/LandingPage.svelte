@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { generateSeeds, computeVoronoi, renderVoronoi } from '../lib/voronoi.js';
+  import { generateVoronoiSVG } from '../lib/svg-export.js';
   import ThemeToggle from './ThemeToggle.svelte';
 
   let {
@@ -15,11 +16,21 @@
   let heroImpact = $state({ x: 0.38, y: 0.44 });
   let heroSeed = $state(42071);
   let activeHeroPreset = $state('Prism');
+  let heroMetric = $state('euclidean');
+  let heroWireframe = $state(false);
+  let heroCellCount = $state(80);
   let fileInput = $state();
 
   let srcPixels = null;
+  let lastHeroVoronoi = null;
   const W = 840;
   const H = 480;
+
+  const HERO_METRICS = [
+    { id: 'euclidean', label: 'Crystal' },
+    { id: 'manhattan', label: 'Diamond' },
+    { id: 'chebyshev', label: 'Grid' },
+  ];
 
   const PRESET_COLORS = [
     'bg-[#d94826] text-white',
@@ -77,8 +88,16 @@
         bevel: 55,
         borderWidth: 1.5,
       };
-    const seeds = generateSeeds(W, H, Math.min(p.cellCount, 180), p.jitter, heroSeed, heroImpact);
-    const { nearestSeed, dist1Sq, dist2Sq, avgColors } = computeVoronoi(srcPixels, W, H, seeds);
+    const count = Math.max(24, Math.min(160, heroCellCount));
+    const seeds = generateSeeds(W, H, count, p.jitter, heroSeed, heroImpact);
+    const { nearestSeed, dist1Sq, dist2Sq, avgColors } = computeVoronoi(
+      srcPixels,
+      W,
+      H,
+      seeds,
+      heroMetric
+    );
+    lastHeroVoronoi = { seeds, avgColors, borderWidth: p.borderWidth };
     const out = renderVoronoi(
       W,
       H,
@@ -95,11 +114,37 @@
       24,
       null,
       'normal',
-      0
+      0,
+      false,
+      heroWireframe
     );
     heroCanvas.width = W;
     heroCanvas.height = H;
     heroCanvas.getContext('2d').putImageData(new ImageData(out, W, H), 0, 0);
+  }
+
+  function exportHeroSVG() {
+    if (!lastHeroVoronoi) return;
+    const svg = generateVoronoiSVG(
+      W,
+      H,
+      lastHeroVoronoi.seeds,
+      lastHeroVoronoi.avgColors,
+      {
+        borderWidth: lastHeroVoronoi.borderWidth,
+        borderColor: '#111113',
+        wireframe: heroWireframe,
+      }
+    );
+    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `voronoi-shatter-${heroMetric}-${heroCellCount}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
   function handleHeroClick(e) {
@@ -116,6 +161,9 @@
 
   function selectHeroPreset(preset) {
     activeHeroPreset = preset.name;
+    if (typeof preset.cellCount === 'number') {
+      heroCellCount = Math.max(24, Math.min(160, preset.cellCount));
+    }
     renderHero(preset);
   }
 
@@ -232,7 +280,7 @@
 
       <div class="relative -mt-6 sm:-mt-10 md:-mt-14 rounded-[1.75rem] p-1.5 bg-studio-ink/[0.04] dark:bg-white/[0.04] ring-1 ring-studio-border">
         <div class="rounded-[calc(1.75rem-0.375rem)] bg-studio-panel p-2 sm:p-2.5 shadow-[0_28px_80px_rgba(17,17,19,0.12),inset_0_1px_0_rgba(255,255,255,0.5)] dark:shadow-[0_32px_90px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.08)]">
-          <div class="relative rounded-xl overflow-hidden bg-studio-bg">
+          <div class="relative rounded-xl overflow-hidden transition-colors duration-150 {heroWireframe ? 'bg-[#f4f3ef]' : 'bg-studio-bg'}">
             <canvas
               bind:this={heroCanvas}
               onclick={handleHeroClick}
@@ -244,6 +292,76 @@
               class="absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-studio-accent bg-studio-bg/60 pointer-events-none"
               style="left: {heroImpact.x * 100}%; top: {heroImpact.y * 100}%;"
             ></div>
+          </div>
+
+          <div class="mt-2.5 px-2 py-1.5 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <div
+                role="group"
+                aria-label="Shard metric"
+                class="inline-flex items-center p-0.5 rounded-full bg-studio-bg border border-studio-border"
+              >
+                {#each HERO_METRICS as metric}
+                  {@const active = heroMetric === metric.id}
+                  <button
+                    type="button"
+                    onclick={() => {
+                      heroMetric = metric.id;
+                      renderHero();
+                    }}
+                    class="h-7 px-3 rounded-full text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
+                      ? 'bg-studio-ink text-studio-bg'
+                      : 'text-studio-muted hover:text-studio-ink'}"
+                  >
+                    {metric.label}
+                  </button>
+                {/each}
+              </div>
+
+              <button
+                type="button"
+                aria-pressed={heroWireframe}
+                onclick={() => {
+                  heroWireframe = !heroWireframe;
+                  renderHero();
+                }}
+                class="h-8 px-3.5 rounded-full border text-xs font-medium active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {heroWireframe
+                  ? 'bg-studio-ink text-studio-bg border-studio-ink'
+                  : 'bg-studio-bg text-studio-muted border-studio-border hover:text-studio-ink hover:border-studio-border-strong'}"
+              >
+                Wireframe
+              </button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <label class="inline-flex items-center gap-2.5 text-xs text-studio-muted">
+                <span class="font-medium">Cells</span>
+                <input
+                  type="range"
+                  min="24"
+                  max="160"
+                  step="1"
+                  bind:value={heroCellCount}
+                  oninput={() => renderHero()}
+                  aria-label="Cell count"
+                  class="w-24 sm:w-28 accent-studio-accent cursor-pointer"
+                />
+                <span class="font-mono tabular-nums text-studio-ink w-7 text-right">{heroCellCount}</span>
+              </label>
+
+              <button
+                type="button"
+                onclick={exportHeroSVG}
+                class="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-studio-ink text-studio-bg text-xs font-medium hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span>Export SVG</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

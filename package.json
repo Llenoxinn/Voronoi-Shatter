@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/build-plugin.mjs",
     "build": "vite build",
     "build:plugin": "node scripts/build-plugin.mjs",
+    "test": "node --test tests/voronoi.test.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {

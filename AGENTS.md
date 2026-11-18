@@ -6,9 +6,10 @@
 - **State**: Centralized in [src/context.svelte.js](src/context.svelte.js) via `createAppState()`, `getAppState()`, and `toggleTheme()` (avoid naming local context bindings `state` to prevent `$state` rune conflict).
 - **Lifecycle**: Clean up timers and `requestAnimationFrame` handles in `onDestroy()`.
 - **Rendering Pipeline**:
-  - Geometry changes (`cellCount`, `jitter`, `impact`, or `Reseed`) trigger `requestFullProcess()` in [src/lib/engine.js](src/lib/engine.js), recomputing seeds and distance fields in [src/lib/worker.js](src/lib/worker.js).
-  - Appearance changes (`refraction`, `bevel`, `dispersion`, `borderWidth`, `borderColor`, `blendMode`, `blendOpacity`) trigger `requestRenderOnly()` using cached typed arrays so sliders stay responsive.
+  - Geometry changes (`cellCount`, `jitter`, `metric`, `impact`, or `Reseed`) trigger `requestFullProcess()` in [src/lib/engine.js](src/lib/engine.js), recomputing seeds and distance fields in [src/lib/worker.js](src/lib/worker.js).
+  - Appearance changes (`refraction`, `bevel`, `dispersion`, `borderWidth`, `borderColor`, `transparentBorder`, `wireframe`, `blendMode`, `blendOpacity`) trigger `requestRenderOnly()` using cached typed arrays so sliders stay responsive.
   - Buffers are transferred via `postMessage(..., transferables)` — always copy `srcData` / cached typed arrays (and plain-clone `params` via `cloneParams()`) before posting because transferred buffers detach and Svelte `$state` proxies cannot be structured-cloned.
+  - Vector export uses [src/lib/svg-export.js](src/lib/svg-export.js), and embed/Figma host messaging uses [src/lib/plugin-api.js](src/lib/plugin-api.js).
 
 ## UI Conventions
 

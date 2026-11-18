@@ -18,11 +18,12 @@ Per-shard refraction, directional facet bevels, RGB chromatic dispersion, and ra
 ## Capabilities
 
 - **Optical Shard Refraction & RGB Dispersion** — Displaces sampled source pixels along a deterministic per-cell vector and splits red/blue channels for prism edges ([`src/lib/voronoi.js`](src/lib/voronoi.js)).
+- **Shard Distance Metrics** — Switch between `Crystal` (Euclidean), `Diamond` (Manhattan), and `Grid` (Chebyshev) cell tessellation.
 - **Interactive Impact Epicenter** — Click anywhere on the canvas to cluster shards radially around a focal point, or reset back to a uniform jittered grid.
-- **3D Facet Bevels & Anti-Aliased Borders** — Top-left key-light rim highlights paired with `smoothstep` sub-pixel edge falloff.
+- **3D Facet Bevels, Cutout Gaps & Wireframe** — Top-left key-light rim highlights paired with `smoothstep` edge falloff, transparent cutout borders, and wireframe-only overlay output.
 - **Cached Worker Pipeline** — Geometry and distance fields (`nearestSeed`, `dist1Sq`, `dist2Sq`, `avgColors`) stay cached in [`src/context.svelte.js`](src/context.svelte.js) and [`src/lib/worker.js`](src/lib/worker.js) so appearance sliders update without recomputing Voronoi cells.
-- **Gallery Stone & Darkroom Themes** — Switch between light editorial stone and darkroom charcoal via [`src/components/ThemeToggle.svelte`](src/components/ThemeToggle.svelte).
-- **Blend & Export** — Composite a second image (`Normal`, `Multiply`, `Screen`, `Overlay`, `Soft Light`), copy PNG straight to the clipboard, or export `PNG`, `JPEG`, and `WebP`.
+- **Vector SVG, Blend & Clipboard Copy** — Export editable clipped-polygon `SVG` vectors ([`src/lib/svg-export.js`](src/lib/svg-export.js)), raster `PNG`/`JPEG`/`WebP`, composite blend layers, or copy PNG straight to the clipboard.
+- **Embed & Figma Plugin Ready** — Includes `?embed` / `postMessage` bridge ([`src/lib/plugin-api.js`](src/lib/plugin-api.js)) and a Figma Desktop plugin starter ([`figma-plugin/`](figma-plugin/README.md)).
 
 ---
 
@@ -56,6 +57,7 @@ Per-shard refraction, directional facet bevels, RGB chromatic dispersion, and ra
 | `C` *(hold)* | Compare original image |
 | `Ctrl+S` / `Cmd+S` | Export current canvas |
 | `Ctrl+Z` / `Cmd+Z` | Reset geometry and shatter parameters |
+| `Escape` | Close active control tray |
 
 ---
 
@@ -78,19 +80,23 @@ npm run preview
 ## Project Structure
 
 ```text
+figma-plugin/
+├── manifest.json             # Figma Desktop plugin manifest
+├── code.js                   # Figma sandbox script (SVG vector & PNG image insertion)
+└── README.md                 # 3-step Figma import guide
 public/
 └── favicon.svg               # Voronoi prism SVG web icon
 src/
 ├── main.js                   # Application entry point
-├── app.css                   # Theme CSS variables, slider/color controls, reduced-motion rules
+├── app.css                   # 3-layer CSS tokens (primitive/semantic/component) & reduced-motion
 ├── context.svelte.js         # Shared Svelte 5 $state context & toggleTheme()
 ├── components/
-│   ├── App.svelte            # View switching (landing/studio), image loading, worker orchestration
-│   ├── LandingPage.svelte    # Swiss-specimen landing page with interactive Voronoi hero & % meters
-│   ├── Header.svelte         # Studio top bar with home link, theme toggle, and inspector toggle
+│   ├── App.svelte            # View switching (landing/studio), embed bridge, worker orchestration
+│   ├── LandingPage.svelte    # Monumental-type landing page with interactive Voronoi hero & preset tabs
+│   ├── Header.svelte         # Minimal top bar with home link, Replace image, and ThemeToggle
 │   ├── ThemeToggle.svelte    # Shared Gallery Stone / Darkroom theme switch
-│   ├── CanvasArea.svelte     # Full-bleed stage, preset dock, impact marker, and instant compare
-│   ├── Sidebar.svelte        # Docked desktop inspector / mobile sheet with segmented export & pills
+│   ├── CanvasArea.svelte     # Full-bleed stage, impact marker, drag-replace, and instant compare
+│   ├── Sidebar.svelte        # Bottom-docked studio command bar & tabbed control tray
 │   ├── UploadZone.svelte     # Asymmetric viewfinder dropzone & sample artwork loader
 │   ├── LoadingOverlay.svelte # Processing status overlay
 │   ├── ControlSlider.svelte  # Labeled range slider with $props.id(), progress track, and tabular-nums
@@ -98,6 +104,8 @@ src/
 └── lib/
     ├── engine.js             # Web Worker lifecycle and transferable buffer messaging
     ├── worker.js             # Worker message handler ('full' and 'render' passes)
-    ├── voronoi.js            # Mulberry32 PRNG, radial/grid seeds, refraction, bevels, dispersion
+    ├── voronoi.js            # Mulberry32 PRNG, radial/grid seeds, metrics, refraction, bevels, dispersion
+    ├── svg-export.js         # Sutherland-Hodgman clipped Voronoi SVG vector generator
+    ├── plugin-api.js         # ?embed / postMessage bridge for iframe & Figma plugin hosts
     └── canvas-utils.js       # Canvas snapshot helper for crossfade transitions
 ```

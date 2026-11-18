@@ -78,7 +78,7 @@
         bind:this={canvasEl}
         onclick={handleCanvasClick}
         title={hasImage ? 'Click anywhere to set shatter impact point' : undefined}
-        class="block max-w-full max-h-full rounded-xl ring-1 ring-black/10 dark:ring-white/10 shadow-[0_24px_60px_rgba(17,17,19,0.12)] dark:shadow-[0_28px_72px_rgba(0,0,0,0.6)] transition-opacity duration-200 ease-[var(--ease-out)] {hasImage ? 'cursor-crosshair' : 'pointer-events-none'}"
+        class="block max-w-full max-h-full rounded-xl ring-1 ring-black/10 dark:ring-white/10 shadow-[0_24px_60px_rgba(17,17,19,0.12)] dark:shadow-[0_28px_72px_rgba(0,0,0,0.6)] {hasImage ? 'cursor-crosshair' : 'pointer-events-none'}"
         class:opacity-0={!hasImage || comparing}
       ></canvas>
 

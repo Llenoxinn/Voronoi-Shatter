@@ -14,11 +14,12 @@
   let heroCanvas = $state();
   let heroImpact = $state({ x: 0.38, y: 0.44 });
   let heroSeed = $state(42071);
+  let activeHeroPreset = $state('Prism');
   let fileInput = $state();
 
   let srcPixels = null;
-  const W = 720;
-  const H = 440;
+  const W = 760;
+  const H = 460;
 
   function buildHeroSource() {
     const oc = document.createElement('canvas');
@@ -33,13 +34,13 @@
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
 
-    const sun = ctx.createRadialGradient(W * 0.36, H * 0.42, 16, W * 0.36, H * 0.42, 190);
+    const sun = ctx.createRadialGradient(W * 0.36, H * 0.42, 16, W * 0.36, H * 0.42, 195);
     sun.addColorStop(0, '#fde68a');
     sun.addColorStop(0.5, '#f97316');
     sun.addColorStop(1, 'rgba(249, 115, 22, 0)');
     ctx.fillStyle = sun;
     ctx.beginPath();
-    ctx.arc(W * 0.36, H * 0.42, 190, 0, Math.PI * 2);
+    ctx.arc(W * 0.36, H * 0.42, 195, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = 'rgba(13, 148, 136, 0.85)';
@@ -56,9 +57,18 @@
     srcPixels = ctx.getImageData(0, 0, W, H).data;
   }
 
-  function renderHero() {
+  function renderHero(presetOverride = null) {
     if (!heroCanvas || !srcPixels) return;
-    const seeds = generateSeeds(W, H, 72, 75, heroSeed, heroImpact);
+    const p =
+      presetOverride ||
+      presets.find((item) => item.name === activeHeroPreset) || {
+        cellCount: 80,
+        jitter: 75,
+        refraction: 65,
+        bevel: 55,
+        borderWidth: 1.5,
+      };
+    const seeds = generateSeeds(W, H, Math.min(p.cellCount, 180), p.jitter, heroSeed, heroImpact);
     const { nearestSeed, dist1Sq, dist2Sq, avgColors } = computeVoronoi(srcPixels, W, H, seeds);
     const out = renderVoronoi(
       W,
@@ -69,10 +79,10 @@
       avgColors,
       seeds,
       srcPixels,
-      1.5,
+      p.borderWidth,
       [17, 17, 19],
-      65,
-      55,
+      p.refraction,
+      p.bevel,
       24,
       null,
       'normal',
@@ -95,6 +105,11 @@
     renderHero();
   }
 
+  function selectHeroPreset(preset) {
+    activeHeroPreset = preset.name;
+    renderHero(preset);
+  }
+
   function handleFileChange(e) {
     if (e.target.files.length > 0) {
       onFile(e.target.files[0]);
@@ -109,7 +124,7 @@
 </script>
 
 <div class="min-h-[100dvh] bg-studio-bg text-studio-ink overflow-x-hidden">
-  <header class="sticky top-0 z-30 backdrop-blur-xl bg-studio-bg/85 border-b border-studio-border">
+  <header class="sticky top-0 z-30 backdrop-blur-xl bg-studio-bg/90 border-b border-studio-border">
     <div class="max-w-6xl mx-auto flex items-center justify-between h-14 px-5 sm:px-8">
       <a href="#top" class="flex items-center gap-2.5 text-studio-ink no-underline">
         <svg class="w-4 h-4 text-studio-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -124,7 +139,6 @@
       <nav class="hidden md:flex items-center gap-7 text-sm text-studio-muted">
         <a href="#optics" class="hover:text-studio-ink transition-colors duration-150">Optics</a>
         <a href="#presets" class="hover:text-studio-ink transition-colors duration-150">Presets</a>
-        <a href="#start" class="hover:text-studio-ink transition-colors duration-150">Start</a>
       </nav>
 
       <div class="flex items-center gap-2">
@@ -140,20 +154,20 @@
     </div>
   </header>
 
-  <!-- Hero -->
-  <section id="top" class="max-w-6xl mx-auto px-5 sm:px-8 pt-14 pb-20 md:pt-20 md:pb-24">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-end">
-      <div class="lg:col-span-8">
-        <h1 class="font-semibold text-4xl sm:text-5xl lg:text-[3.75rem] leading-[1.04] tracking-[-0.03em] text-studio-ink max-w-3xl text-balance">
+  <!-- Asymmetric Split Hero + Live Interactive Specimen -->
+  <section id="top" class="max-w-6xl mx-auto px-5 sm:px-8 pt-12 pb-20 md:pt-16 md:pb-24">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+      <!-- Left: Editorial Copy & Actions -->
+      <div class="lg:col-span-5 flex flex-col items-start">
+        <h1 class="font-semibold text-4xl sm:text-5xl lg:text-[3.5rem] leading-[1.02] tracking-[-0.03em] text-studio-ink text-balance">
           Fracture flat imagery into optical crystal.
         </h1>
-      </div>
 
-      <div class="lg:col-span-4 flex flex-col items-start gap-5">
-        <p class="text-base text-studio-muted leading-relaxed max-w-[38ch]">
-          Voronoi tessellation with per-shard refraction, directional bevels, and RGB dispersion—rendered in your browser.
+        <p class="mt-5 text-base text-studio-muted leading-relaxed max-w-[38ch] text-pretty">
+          Per-shard pixel refraction, directional facet bevels, and RGB dispersion—running locally in your browser.
         </p>
-        <div class="flex flex-wrap items-center gap-2.5">
+
+        <div class="flex flex-wrap items-center gap-2.5 mt-8">
           <button
             type="button"
             onclick={onOpenSample}
@@ -171,157 +185,154 @@
           <input type="file" accept="image/*" bind:this={fileInput} onchange={handleFileChange} aria-label="Upload image to studio" />
         </div>
       </div>
-    </div>
 
-    <!-- Interactive App Frame -->
-    <div class="mt-12 rounded-2xl border border-studio-border-strong bg-studio-panel p-2 sm:p-3 shadow-[0_24px_70px_rgba(17,17,19,0.08)] dark:shadow-[0_28px_80px_rgba(0,0,0,0.6)]">
-      <div class="relative rounded-xl overflow-hidden bg-studio-bg">
-        <canvas
-          bind:this={heroCanvas}
-          onclick={handleHeroClick}
-          title="Click anywhere to move the fracture origin"
-          class="block w-full h-auto cursor-crosshair"
-        ></canvas>
-        <div
-          aria-hidden="true"
-          class="absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-studio-accent bg-studio-bg/60 pointer-events-none"
-          style="left: {heroImpact.x * 100}%; top: {heroImpact.y * 100}%;"
-        ></div>
+      <!-- Right: Live Interactive Voronoi Specimen -->
+      <div class="lg:col-span-7">
+        <div class="rounded-2xl border border-studio-border-strong bg-studio-panel p-2 shadow-[0_24px_70px_rgba(17,17,19,0.08)] dark:shadow-[0_28px_80px_rgba(0,0,0,0.6)]">
+          <div class="relative rounded-lg overflow-hidden bg-studio-bg">
+            <canvas
+              bind:this={heroCanvas}
+              onclick={handleHeroClick}
+              title="Click anywhere to move the fracture origin"
+              class="block w-full h-auto cursor-crosshair"
+            ></canvas>
+            <div
+              aria-hidden="true"
+              class="absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-studio-accent bg-studio-bg/60 pointer-events-none"
+              style="left: {heroImpact.x * 100}%; top: {heroImpact.y * 100}%;"
+            ></div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 px-2 pt-2.5 pb-1">
+            <div class="flex flex-wrap items-center gap-1">
+              {#each presets.slice(0, 4) as preset}
+                {@const active = activeHeroPreset === preset.name}
+                <button
+                  type="button"
+                  onclick={() => selectHeroPreset(preset)}
+                  class="px-2.5 py-1 rounded-md text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
+                    ? 'bg-studio-ink text-studio-bg'
+                    : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated'}"
+                >
+                  {preset.name}
+                </button>
+              {/each}
+            </div>
+            <span class="text-xs text-studio-subtle">Click artwork to move impact</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Bento Capabilities -->
-  <section id="optics" class="max-w-6xl mx-auto px-5 sm:px-8 py-20 md:py-24 border-t border-studio-border">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-      <h2 class="font-semibold text-3xl sm:text-4xl tracking-[-0.025em] text-studio-ink">
-        Built for crisp geometry.
-      </h2>
-      <p class="text-sm text-studio-muted max-w-[40ch]">
-        Click-to-impact clustering, sub-pixel edge falloff, and instant re-rendering.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-12 grid-flow-dense gap-4">
-      <article class="md:col-span-7 p-7 rounded-2xl bg-studio-panel border border-studio-border flex flex-col justify-between min-h-[200px]">
-        <h3 class="font-semibold text-xl tracking-[-0.015em] text-studio-ink">
-          Per-shard refraction &amp; RGB dispersion
-        </h3>
-        <p class="mt-3 text-sm text-studio-muted leading-relaxed max-w-[50ch]">
-          Each Voronoi cell samples displaced source pixels along a deterministic vector and splits red and blue channels for prism glass edges.
+  <!-- Architectural Hairline Strip (No boxed card grid) -->
+  <section id="optics" class="border-t border-b border-studio-border bg-studio-panel/50">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-studio-border">
+      <div class="px-5 sm:px-8 py-12">
+        <span class="font-mono text-xs font-semibold text-studio-accent tabular-nums">01</span>
+        <h2 class="font-semibold text-lg tracking-tight text-studio-ink mt-3">
+          Optical refraction &amp; dispersion
+        </h2>
+        <p class="mt-2 text-sm text-studio-muted leading-relaxed text-pretty">
+          Displaces sampled pixels per cell and splits red and blue channels for prism glass edges.
         </p>
-      </article>
+      </div>
 
-      <article class="md:col-span-5 p-7 rounded-2xl bg-studio-ink text-studio-bg flex flex-col justify-between min-h-[200px]">
-        <h3 class="font-semibold text-xl tracking-[-0.015em]">
-          Radial impact epicenter
-        </h3>
-        <p class="mt-3 text-sm opacity-75 leading-relaxed">
-          Click anywhere on the artwork to cluster shards around a focal point, or reset to a uniform grid.
+      <div class="px-5 sm:px-8 py-12">
+        <span class="font-mono text-xs font-semibold text-studio-accent tabular-nums">02</span>
+        <h2 class="font-semibold text-lg tracking-tight text-studio-ink mt-3">
+          Radial impact clustering
+        </h2>
+        <p class="mt-2 text-sm text-studio-muted leading-relaxed text-pretty">
+          Click anywhere on your artwork to fracture radially from a focal point, or reset to a grid.
         </p>
-      </article>
+      </div>
 
-      <article class="md:col-span-5 p-7 rounded-2xl bg-studio-elevated border border-studio-border flex flex-col justify-between min-h-[200px]">
-        <h3 class="font-semibold text-xl tracking-[-0.015em] text-studio-ink">
-          3D bevels &amp; anti-aliased edges
-        </h3>
-        <p class="mt-3 text-sm text-studio-muted leading-relaxed">
-          Directional rim highlights and smoothstep edge falloff keep fracture lines clean at any border width.
+      <div class="px-5 sm:px-8 py-12">
+        <span class="font-mono text-xs font-semibold text-studio-accent tabular-nums">03</span>
+        <h2 class="font-semibold text-lg tracking-tight text-studio-ink mt-3">
+          Cached worker &amp; Figma copy
+        </h2>
+        <p class="mt-2 text-sm text-studio-muted leading-relaxed text-pretty">
+          Distance fields stay cached in a Web Worker for instant slider tuning and 1-click clipboard copy.
         </p>
-      </article>
-
-      <article class="md:col-span-7 p-7 rounded-2xl bg-studio-panel border border-studio-border flex flex-col justify-between min-h-[200px]">
-        <h3 class="font-semibold text-xl tracking-[-0.015em] text-studio-ink">
-          Cached Web Worker &amp; clipboard copy
-        </h3>
-        <p class="mt-3 text-sm text-studio-muted leading-relaxed max-w-[50ch]">
-          Distance fields stay cached in a background worker so optics, blend, and border sliders update immediately—ready to paste straight into Figma.
-        </p>
-      </article>
+      </div>
     </div>
   </section>
 
-  <!-- Presets with visual % meter bars -->
-  <section id="presets" class="max-w-6xl mx-auto px-5 sm:px-8 py-20 md:py-24 border-t border-studio-border">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-      <h2 class="font-semibold text-3xl sm:text-4xl tracking-[-0.025em] text-studio-ink">
-        Six starting presets.
+  <!-- Presets Specimen Table -->
+  <section id="presets" class="max-w-6xl mx-auto px-5 sm:px-8 py-20 md:py-24">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+      <h2 class="font-semibold text-3xl tracking-[-0.025em] text-studio-ink text-balance">
+        Calibrated presets.
       </h2>
-      <p class="text-sm text-studio-muted">Click any preset to open it in the studio.</p>
+      <p class="text-sm text-studio-muted">Select any row to launch the studio with that profile.</p>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="border-t border-b border-studio-border divide-y divide-studio-border">
       {#each presets as preset}
         <button
           type="button"
           onclick={() => onOpenPreset(preset)}
-          class="group flex flex-col items-start p-5 rounded-2xl bg-studio-panel border border-studio-border hover:border-studio-accent active:scale-[0.98] transition-[border-color,transform] duration-150 ease-[var(--ease-out)] text-left"
+          class="group w-full grid grid-cols-1 md:grid-cols-12 gap-4 items-center py-4 px-2 hover:bg-studio-panel/80 active:scale-[0.995] transition-[background-color,transform] duration-150 text-left"
         >
-          <div class="flex items-baseline justify-between w-full">
+          <div class="md:col-span-4 flex items-baseline justify-between md:justify-start gap-3">
             <span class="font-semibold text-base text-studio-ink group-hover:text-studio-accent transition-colors duration-150">
               {preset.name}
             </span>
-            <span class="font-mono text-xs font-semibold text-studio-ink tabular-nums">
-              {preset.cellCount} <span class="font-sans font-normal text-studio-muted">cells</span>
-            </span>
+            <span class="text-xs text-studio-muted">{preset.desc}</span>
           </div>
-          <span class="text-xs text-studio-muted mt-0.5">{preset.desc}</span>
 
-          <!-- Visual % meter bars -->
-          <div class="w-full space-y-2.5 mt-5 pt-4 border-t border-studio-border">
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span class="text-studio-muted">Refraction</span>
-                <span class="font-mono font-semibold text-studio-ink tabular-nums">{preset.refraction}%</span>
-              </div>
-              <div class="h-1.5 w-full rounded-full bg-studio-elevated overflow-hidden">
-                <div class="h-full rounded-full bg-studio-accent" style="width: {preset.refraction}%;"></div>
-              </div>
-            </div>
+          <div class="md:col-span-2 font-mono text-xs font-semibold text-studio-ink tabular-nums">
+            {preset.cellCount} <span class="font-sans font-normal text-studio-muted">cells</span>
+          </div>
 
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span class="text-studio-muted">Bevel</span>
-                <span class="font-mono font-semibold text-studio-ink tabular-nums">{preset.bevel}%</span>
-              </div>
-              <div class="h-1.5 w-full rounded-full bg-studio-elevated overflow-hidden">
-                <div class="h-full rounded-full bg-studio-ink/75" style="width: {preset.bevel}%;"></div>
-              </div>
+          <div class="md:col-span-3 flex items-center gap-3">
+            <span class="text-xs text-studio-muted w-16 shrink-0">Refraction</span>
+            <div class="flex-1 h-1.5 rounded-full bg-studio-elevated overflow-hidden">
+              <div class="h-full rounded-full bg-studio-accent" style="width: {preset.refraction}%;"></div>
             </div>
+            <span class="font-mono text-xs font-semibold text-studio-ink tabular-nums w-9 text-right">{preset.refraction}%</span>
+          </div>
+
+          <div class="md:col-span-3 flex items-center gap-3">
+            <span class="text-xs text-studio-muted w-10 shrink-0">Bevel</span>
+            <div class="flex-1 h-1.5 rounded-full bg-studio-elevated overflow-hidden">
+              <div class="h-full rounded-full bg-studio-ink/75" style="width: {preset.bevel}%;"></div>
+            </div>
+            <span class="font-mono text-xs font-semibold text-studio-ink tabular-nums w-9 text-right">{preset.bevel}%</span>
           </div>
         </button>
       {/each}
     </div>
   </section>
 
-  <!-- CTA -->
-  <section id="start" class="max-w-6xl mx-auto px-5 sm:px-8 py-20 md:py-24 border-t border-studio-border">
-    <div class="rounded-2xl bg-studio-ink text-studio-bg p-8 sm:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-      <div>
-        <h2 class="font-semibold text-3xl sm:text-5xl tracking-[-0.03em]">
-          Start shattering.
-        </h2>
-        <p class="mt-3 text-sm opacity-75 max-w-[42ch]">
-          Copy PNG straight to your clipboard or export lossless files in one click.
-        </p>
-      </div>
+  <!-- Closing Editorial Band -->
+  <section class="max-w-6xl mx-auto px-5 sm:px-8 pb-20 pt-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <div>
+      <h2 class="font-semibold text-3xl sm:text-4xl tracking-[-0.03em] text-studio-ink text-balance">
+        Ready to shatter your artwork?
+      </h2>
+      <p class="mt-2 text-sm text-studio-muted max-w-[44ch] text-pretty">
+        Copy PNG straight to your clipboard or export lossless files in one click.
+      </p>
+    </div>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onclick={onOpenSample}
-          class="inline-flex items-center justify-center h-11 px-6 rounded-xl bg-studio-accent text-studio-accent-ink text-sm font-medium hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
-        >
-          Launch with sample
-        </button>
-        <button
-          type="button"
-          onclick={onOpenStudio}
-          class="inline-flex items-center justify-center h-11 px-6 rounded-xl border border-white/25 text-sm font-medium hover:border-white/60 active:scale-[0.96] transition-[border-color,transform] duration-150"
-        >
-          Open empty studio
-        </button>
-      </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        onclick={onOpenSample}
+        class="inline-flex items-center justify-center h-11 px-6 rounded-xl bg-studio-accent text-studio-accent-ink text-sm font-medium hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
+      >
+        Launch with sample
+      </button>
+      <button
+        type="button"
+        onclick={onOpenStudio}
+        class="inline-flex items-center justify-center h-11 px-6 rounded-xl border border-studio-border-strong bg-studio-panel text-studio-ink text-sm font-medium hover:border-studio-ink active:scale-[0.96] transition-[border-color,transform] duration-150"
+      >
+        Open empty studio
+      </button>
     </div>
   </section>
 

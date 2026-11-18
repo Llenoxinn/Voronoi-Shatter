@@ -1,8 +1,11 @@
 <script>
   import { onDestroy } from 'svelte';
   import { getAppState } from '../context.svelte.js';
+  import { isEmbedMode } from '../lib/plugin-api.js';
   import ControlSlider from './ControlSlider.svelte';
   import ColorPicker from './ColorPicker.svelte';
+
+  const seedId = $props.id();
 
   let {
     presets = [],
@@ -18,9 +21,11 @@
     onBlendFile,
     onBlendRemove,
     onBlendChange,
+    onSendToHost,
   } = $props();
 
   const appState = getAppState();
+  const embedMode = isEmbedMode();
 
   let activeTab = $state(null); // 'geometry' | 'optics' | 'blend' | 'export' | null
   let blendFileInput = $state();
@@ -57,6 +62,14 @@
       copyTimer = setTimeout(() => (copied = false), 1500);
     }
   }
+
+  function handleSeedChange(e) {
+    const parsed = parseInt(e.target.value, 10);
+    const next = Number.isFinite(parsed) && parsed >= 1 ? Math.min(1e9, parsed) : 1;
+    appState.params.seed = next;
+    e.target.value = String(next);
+    onGeoChange?.();
+  }
 </script>
 
 <svelte:window onkeydown={handleWindowKeydown} />
@@ -88,28 +101,45 @@
             <ControlSlider label="Jitter" bind:value={appState.params.jitter} min={0} max={100} step={1} unit="%" onchange={onGeoChange} />
           </div>
 
-          <div class="mt-4 pt-3 border-t border-studio-border">
-            <span class="block text-xs font-medium text-studio-muted mb-2">Shard Metric</span>
-            <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-studio-elevated border border-studio-border" role="group" aria-label="Distance metric">
-              {#each [
-                { id: 'euclidean', label: 'Crystal' },
-                { id: 'manhattan', label: 'Diamond' },
-                { id: 'chebyshev', label: 'Grid' },
-              ] as m}
-                {@const active = appState.params.metric === m.id}
-                <button
-                  type="button"
-                  onclick={() => {
-                    appState.params.metric = m.id;
-                    onGeoChange();
-                  }}
-                  class="h-9 md:h-8 rounded-lg text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
-                    ? 'bg-studio-panel text-studio-ink shadow-sm'
-                    : 'text-studio-muted hover:text-studio-ink'}"
-                >
-                  {m.label}
-                </button>
-              {/each}
+          <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-end mt-4 pt-3 border-t border-studio-border">
+            <div>
+              <span class="block text-xs font-medium text-studio-muted mb-2">Shard Metric</span>
+              <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-studio-elevated border border-studio-border" role="group" aria-label="Distance metric">
+                {#each [
+                  { id: 'euclidean', label: 'Crystal' },
+                  { id: 'manhattan', label: 'Diamond' },
+                  { id: 'chebyshev', label: 'Grid' },
+                ] as m}
+                  {@const active = appState.params.metric === m.id}
+                  <button
+                    type="button"
+                    onclick={() => {
+                      appState.params.metric = m.id;
+                      onGeoChange();
+                    }}
+                    class="h-9 md:h-8 rounded-lg text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
+                      ? 'bg-studio-panel text-studio-ink shadow-sm'
+                      : 'text-studio-muted hover:text-studio-ink'}"
+                  >
+                    {m.label}
+                  </button>
+                {/each}
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:w-32">
+              <label for={seedId} class="block text-xs font-medium text-studio-muted mb-2">Seed</label>
+              <input
+                id={seedId}
+                type="number"
+                min={1}
+                max={1000000000}
+                step={1}
+                inputmode="numeric"
+                value={appState.params.seed}
+                onchange={handleSeedChange}
+                class="w-full h-[46px] md:h-[42px] px-2.5 rounded-xl bg-studio-elevated border border-studio-border focus:border-studio-accent focus:outline-none font-mono text-xs font-medium text-studio-ink tabular-nums dark:[color-scheme:dark] transition-colors duration-150"
+              />
             </div>
           </div>
 
@@ -316,10 +346,22 @@
         <button
           type="button"
           onclick={onDownload}
-          class="h-10 md:h-9 px-3 sm:px-3.5 rounded-[10px] text-xs font-medium bg-studio-ink text-studio-bg hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
+          class="h-10 md:h-9 px-3 sm:px-3.5 rounded-[10px] text-xs font-medium active:scale-[0.96] transition-[opacity,border-color,transform] duration-150 {embedMode
+            ? 'bg-studio-elevated text-studio-ink border border-studio-border hover:border-studio-border-strong'
+            : 'bg-studio-ink text-studio-bg hover:opacity-90'}"
         >
           Export
         </button>
+
+        {#if embedMode}
+          <button
+            type="button"
+            onclick={() => onSendToHost?.()}
+            class="h-10 md:h-9 px-3 sm:px-3.5 rounded-[10px] text-xs font-medium bg-studio-ink text-studio-bg hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
+          >
+            Insert
+          </button>
+        {/if}
       </div>
     </div>
   </div>

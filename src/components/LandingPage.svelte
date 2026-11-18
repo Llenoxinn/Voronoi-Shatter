@@ -126,6 +126,26 @@
     }
   }
 
+  function reveal(node) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return {};
+    node.style.opacity = '0';
+    node.style.transform = 'translateY(18px)';
+    node.style.transition = 'opacity 550ms var(--ease-spring), transform 550ms var(--ease-spring)';
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          node.style.opacity = '1';
+          node.style.transform = 'translateY(0)';
+          io.disconnect();
+        }
+      },
+      { threshold: 0.12 }
+    );
+    io.observe(node);
+    return { destroy: () => io.disconnect() };
+  }
+
   onMount(() => {
     buildHeroSource();
     renderHero();
@@ -133,10 +153,10 @@
 </script>
 
 <div class="min-h-[100dvh] bg-studio-bg text-studio-ink overflow-x-hidden">
-  <!-- Minimal Top Nav -->
-  <header class="sticky top-0 z-30 backdrop-blur-xl bg-studio-bg/90 border-b border-studio-border">
-    <div class="max-w-6xl mx-auto flex items-center justify-between h-14 px-5 sm:px-8">
-      <a href="#top" class="flex items-center gap-2.5 text-studio-ink no-underline">
+  <!-- Fluid Island Floating Nav -->
+  <div class="sticky top-4 z-30 px-4 pointer-events-none">
+    <header class="pointer-events-auto max-w-4xl mx-auto flex items-center justify-between h-12 pl-4 pr-2 rounded-full backdrop-blur-xl bg-studio-panel border border-studio-border shadow-[0_12px_32px_rgba(17,17,19,0.07),inset_0_1px_0_rgba(255,255,255,0.5)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)]">
+      <a href="#top" class="flex items-center gap-2 text-studio-ink no-underline">
         <svg class="w-4 h-4 text-studio-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
           <line x1="12" y1="22" x2="12" y2="12" />
@@ -146,23 +166,23 @@
         <span class="font-semibold text-sm tracking-tight">Voronoi Shatter</span>
       </a>
 
-      <nav class="hidden md:flex items-center gap-8 text-sm text-studio-muted">
+      <nav class="hidden md:flex items-center gap-7 text-xs font-medium text-studio-muted">
         <a href="#optics" class="hover:text-studio-ink transition-colors duration-150">Optics</a>
         <a href="#presets" class="hover:text-studio-ink transition-colors duration-150">Presets</a>
       </nav>
 
-      <div class="flex items-center gap-2">
-        <ThemeToggle size="md" />
+      <div class="flex items-center gap-1.5">
+        <ThemeToggle />
         <button
           type="button"
           onclick={onOpenStudio}
-          class="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-studio-ink text-studio-bg text-xs font-medium hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
+          class="inline-flex items-center justify-center h-8 px-4 rounded-full bg-studio-ink text-studio-bg text-xs font-medium hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
         >
           Open Studio
         </button>
       </div>
-    </div>
-  </header>
+    </header>
+  </div>
 
   <!-- Hero: Editorial Headline + Monumental Type Behind Interactive Window -->
   <section id="top" class="max-w-6xl mx-auto px-5 sm:px-8 pt-12 pb-16 md:pt-16 md:pb-24">
@@ -179,14 +199,20 @@
         <button
           type="button"
           onclick={onOpenSample}
-          class="inline-flex items-center justify-center h-11 px-6 rounded-xl bg-studio-accent text-studio-accent-ink text-sm font-medium hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
+          class="group inline-flex items-center gap-3 h-11 pl-5 pr-2 rounded-full bg-studio-accent text-studio-accent-ink text-sm font-medium hover:opacity-95 active:scale-[0.96] transition-[opacity,transform] duration-150"
         >
-          Try live sample
+          <span>Try live sample</span>
+          <span class="w-7 h-7 rounded-full bg-black/15 flex items-center justify-center group-hover:translate-x-0.5 group-hover:-translate-y-[1px] transition-transform duration-200 ease-[var(--ease-out)]">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="7" y1="17" x2="17" y2="7" />
+              <polyline points="7 7 17 7 17 17" />
+            </svg>
+          </span>
         </button>
         <button
           type="button"
           onclick={() => fileInput.click()}
-          class="inline-flex items-center justify-center h-11 px-6 rounded-xl border border-studio-border-strong bg-studio-panel text-studio-ink text-sm font-medium hover:border-studio-ink active:scale-[0.96] transition-[border-color,transform] duration-150"
+          class="inline-flex items-center justify-center h-11 px-6 rounded-full border border-studio-border-strong bg-studio-panel text-studio-ink text-sm font-medium hover:border-studio-ink active:scale-[0.96] transition-[border-color,transform] duration-150"
         >
           Upload image
         </button>
@@ -194,7 +220,7 @@
       </div>
     </div>
 
-    <!-- Monumental Display Wordmark Behind App Frame -->
+    <!-- Monumental Display Wordmark Behind Double-Bezel App Frame -->
     <div class="relative mt-14 md:mt-20">
       <div
         aria-hidden="true"
@@ -204,26 +230,28 @@
         SHATTER
       </div>
 
-      <div class="relative -mt-6 sm:-mt-10 md:-mt-14 rounded-2xl border border-studio-border-strong bg-studio-panel p-2 sm:p-3 shadow-[0_28px_80px_rgba(17,17,19,0.12)] dark:shadow-[0_32px_90px_rgba(0,0,0,0.65)]">
-        <div class="relative rounded-xl overflow-hidden bg-studio-bg">
-          <canvas
-            bind:this={heroCanvas}
-            onclick={handleHeroClick}
-            title="Click anywhere to move the fracture origin"
-            class="block w-full h-auto cursor-crosshair"
-          ></canvas>
-          <div
-            aria-hidden="true"
-            class="absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-studio-accent bg-studio-bg/60 pointer-events-none"
-            style="left: {heroImpact.x * 100}%; top: {heroImpact.y * 100}%;"
-          ></div>
+      <div class="relative -mt-6 sm:-mt-10 md:-mt-14 rounded-[1.75rem] p-1.5 bg-studio-ink/[0.04] dark:bg-white/[0.04] ring-1 ring-studio-border">
+        <div class="rounded-[calc(1.75rem-0.375rem)] bg-studio-panel p-2 sm:p-2.5 shadow-[0_28px_80px_rgba(17,17,19,0.12),inset_0_1px_0_rgba(255,255,255,0.5)] dark:shadow-[0_32px_90px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.08)]">
+          <div class="relative rounded-xl overflow-hidden bg-studio-bg">
+            <canvas
+              bind:this={heroCanvas}
+              onclick={handleHeroClick}
+              title="Click anywhere to move the fracture origin"
+              class="block w-full h-auto cursor-crosshair"
+            ></canvas>
+            <div
+              aria-hidden="true"
+              class="absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-studio-accent bg-studio-bg/60 pointer-events-none"
+              style="left: {heroImpact.x * 100}%; top: {heroImpact.y * 100}%;"
+            ></div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Bold Color-Blocked Showcase Card (Inspired by Reference) -->
-  <section id="optics" class="max-w-6xl mx-auto px-5 sm:px-8 py-10 md:py-16">
+  <!-- Bold Color-Blocked Showcase Card -->
+  <section id="optics" use:reveal class="max-w-6xl mx-auto px-5 sm:px-8 py-12 md:py-20">
     <div class="rounded-3xl bg-studio-accent text-studio-accent-ink p-8 sm:p-12 lg:p-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
       <div class="lg:col-span-5">
         <h2 class="font-medium text-3xl sm:text-5xl leading-[1.05] tracking-[-0.03em] text-balance">
@@ -267,7 +295,7 @@
   </section>
 
   <!-- Color-Coded Preset Strip + Live Specimen -->
-  <section id="presets" class="max-w-6xl mx-auto px-5 sm:px-8 py-16 md:py-24">
+  <section id="presets" use:reveal class="max-w-6xl mx-auto px-5 sm:px-8 py-20 md:py-28">
     <div class="max-w-2xl mb-10">
       <h2 class="font-medium text-3xl sm:text-5xl leading-[1.06] tracking-[-0.03em] text-studio-ink text-balance">
         Six calibrated presets, ready in one click.
@@ -303,7 +331,7 @@
   </section>
 
   <!-- Monumental Closing Typographic Section -->
-  <section class="max-w-6xl mx-auto px-5 sm:px-8 pt-12 pb-20 md:pt-20 md:pb-28 text-center">
+  <section use:reveal class="max-w-6xl mx-auto px-5 sm:px-8 pt-12 pb-20 md:pt-20 md:pb-28 text-center">
     <h2
       class="font-bold tracking-[-0.045em] leading-[0.95] text-studio-ink select-none"
       style="font-size: clamp(3.5rem, 11vw, 8.5rem);"

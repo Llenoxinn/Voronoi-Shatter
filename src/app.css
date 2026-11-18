@@ -5,37 +5,52 @@
 :root {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
 
-  /* Gallery Stone (default) — Swiss / Hardware Studio */
-  --studio-bg: #f4f3ef;
-  --studio-panel: rgba(255, 255, 255, 0.86);
-  --studio-elevated: #eae8e1;
+  /* 1. Primitive Tokens */
+  --palette-stone-50: #faf9f6;
+  --palette-stone-100: #f4f3ef;
+  --palette-stone-200: #eae8e1;
+  --palette-charcoal-950: #111113;
+  --palette-charcoal-900: #18181c;
+  --palette-charcoal-800: #222227;
+  --palette-vermilion-600: #d94826;
+  --palette-vermilion-500: #f06449;
+
+  /* 2. Semantic Tokens — Gallery Stone (default) */
+  --studio-bg: var(--palette-stone-100);
+  --studio-panel: rgba(255, 255, 255, 0.88);
+  --studio-elevated: var(--palette-stone-200);
   --studio-border: rgba(17, 17, 19, 0.09);
   --studio-border-strong: rgba(17, 17, 19, 0.18);
-  --studio-ink: #111113;
+  --studio-ink: var(--palette-charcoal-950);
   --studio-muted: #57565d;
   --studio-subtle: #88868f;
-  --studio-accent: #d94826;
+  --studio-accent: var(--palette-vermilion-600);
   --studio-accent-soft: rgba(217, 72, 38, 0.11);
   --studio-accent-ink: #ffffff;
+
+  /* 3. Component Tokens */
   --studio-grid-dot: rgba(17, 17, 19, 0.08);
   --studio-track: rgba(17, 17, 19, 0.13);
   --studio-track-hover: rgba(17, 17, 19, 0.22);
 }
 
 html.dark {
-  /* Darkroom Charcoal */
-  --studio-bg: #111113;
-  --studio-panel: rgba(24, 24, 28, 0.84);
-  --studio-elevated: #222227;
+  /* 2. Semantic Tokens — Darkroom Charcoal */
+  --studio-bg: var(--palette-charcoal-950);
+  --studio-panel: rgba(24, 24, 28, 0.86);
+  --studio-elevated: var(--palette-charcoal-800);
   --studio-border: rgba(255, 255, 255, 0.09);
   --studio-border-strong: rgba(255, 255, 255, 0.18);
-  --studio-ink: #f4f3ef;
+  --studio-ink: var(--palette-stone-100);
   --studio-muted: #a1a0a8;
   --studio-subtle: #6e6d75;
-  --studio-accent: #f06449;
+  --studio-accent: var(--palette-vermilion-500);
   --studio-accent-soft: rgba(240, 100, 73, 0.15);
-  --studio-accent-ink: #111113;
+  --studio-accent-ink: var(--palette-charcoal-950);
+
+  /* 3. Component Tokens */
   --studio-grid-dot: rgba(255, 255, 255, 0.06);
   --studio-track: rgba(255, 255, 255, 0.14);
   --studio-track-hover: rgba(255, 255, 255, 0.24);

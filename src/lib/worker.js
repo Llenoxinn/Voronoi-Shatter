@@ -23,7 +23,7 @@ self.onmessage = function (e) {
     const seeds = generateSeeds(width, height, params.cellCount, params.jitter, params.seed, params.impact);
     cachedSeeds = seeds;
 
-    const voronoi = computeVoronoi(pixelArray, width, height, seeds);
+    const voronoi = computeVoronoi(pixelArray, width, height, seeds, params.metric);
     const bc = parseColor(params.borderColor);
     const output = renderVoronoi(
       width,
@@ -41,7 +41,9 @@ self.onmessage = function (e) {
       params.dispersion,
       blendArray,
       params.blendMode,
-      params.blendOpacity
+      params.blendOpacity,
+      params.transparentBorder,
+      params.wireframe
     );
 
     const transferables = [
@@ -91,7 +93,9 @@ self.onmessage = function (e) {
       params.dispersion,
       blendArray,
       params.blendMode,
-      params.blendOpacity
+      params.blendOpacity,
+      params.transparentBorder,
+      params.wireframe
     );
 
     self.postMessage(

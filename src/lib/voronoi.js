@@ -56,7 +56,7 @@ export function generateSeeds(w, h, count, jitter, seed = 1, impact = null) {
   return seeds;
 }
 
-export function computeVoronoi(pixels, w, h, seeds) {
+export function computeVoronoi(pixels, w, h, seeds, metric = 'euclidean') {
   const n = seeds.length;
   const numPixels = w * h;
   const nearestSeed = new Int32Array(numPixels);
@@ -66,6 +66,7 @@ export function computeVoronoi(pixels, w, h, seeds) {
   const cellSumG = new Float64Array(n);
   const cellSumB = new Float64Array(n);
   const cellCounts = new Int32Array(n);
+  const metricMode = metric === 'manhattan' ? 1 : metric === 'chebyshev' ? 2 : 0;
 
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
@@ -76,7 +77,14 @@ export function computeVoronoi(pixels, w, h, seeds) {
       for (let s = 0; s < n; s++) {
         const dx = x - seeds[s].x;
         const dy = y - seeds[s].y;
-        const d = dx * dx + dy * dy;
+        let d;
+        if (metricMode === 1) {
+          d = Math.abs(dx) + Math.abs(dy);
+        } else if (metricMode === 2) {
+          d = Math.max(Math.abs(dx), Math.abs(dy));
+        } else {
+          d = dx * dx + dy * dy;
+        }
 
         if (d < min1) {
           min2 = min1;
@@ -89,8 +97,8 @@ export function computeVoronoi(pixels, w, h, seeds) {
 
       const i = y * w + x;
       nearestSeed[i] = minIdx;
-      dist1Sq[i] = min1;
-      dist2Sq[i] = min2;
+      dist1Sq[i] = metricMode === 0 ? min1 : min1 * min1;
+      dist2Sq[i] = metricMode === 0 ? min2 : min2 * min2;
 
       const pi = i * 4;
       cellSumR[minIdx] += pixels[pi];
@@ -177,7 +185,9 @@ export function renderVoronoi(
   dispersion,
   blendPixels,
   blendMode,
-  blendOpacity
+  blendOpacity,
+  transparentBorder = false,
+  wireframe = false
 ) {
   const numPixels = w * h;
   const out = new Uint8ClampedArray(numPixels * 4);
@@ -280,19 +290,35 @@ export function renderVoronoi(
         b = b + (mb - b) * blendAmt;
       }
 
-      if (bw > 0) {
+      let alpha = 255;
+
+      if (wireframe) {
+        if (bw > 0) {
+          const borderAlpha = 1 - smoothstep(Math.max(0, bw - 0.85), bw + 0.85, edgeDist);
+          r = br;
+          g = bg;
+          b = bb;
+          alpha = Math.round(255 * borderAlpha);
+        } else {
+          alpha = 0;
+        }
+      } else if (bw > 0) {
         const borderAlpha = 1 - smoothstep(Math.max(0, bw - 0.85), bw + 0.85, edgeDist);
         if (borderAlpha > 0) {
-          r = r + (br - r) * borderAlpha;
-          g = g + (bg - g) * borderAlpha;
-          b = b + (bb - b) * borderAlpha;
+          if (transparentBorder) {
+            alpha = Math.round(255 * (1 - borderAlpha));
+          } else {
+            r = r + (br - r) * borderAlpha;
+            g = g + (bg - g) * borderAlpha;
+            b = b + (bb - b) * borderAlpha;
+          }
         }
       }
 
       out[oi] = r;
       out[oi + 1] = g;
       out[oi + 2] = b;
-      out[oi + 3] = 255;
+      out[oi + 3] = alpha;
     }
   }
 

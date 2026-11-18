@@ -44,6 +44,36 @@
     )?.name ?? null
   );
 
+  async function exportToHost(format = 'svg') {
+    if (!appState.hasImage) return;
+    if (format === 'svg' && appState.cachedAvgColors) {
+      const svg = generateVoronoiSVG(
+        appState.cachedWidth,
+        appState.cachedHeight,
+        appState.seeds,
+        appState.cachedAvgColors,
+        appState.params
+      );
+      postToHost('voronoi:export-result', { format: 'svg', svg });
+    } else if (canvasEl) {
+      const blob = await new Promise((r) => canvasEl.toBlob(r, 'image/png'));
+      if (blob) {
+        const bytes = Array.from(new Uint8Array(await blob.arrayBuffer()));
+        postToHost('voronoi:export-result', {
+          format: 'png',
+          bytes,
+          width: appState.srcWidth,
+          height: appState.srcHeight,
+        });
+      }
+    }
+  }
+
+  function handleSendToHost() {
+    const fmt = appState.params.exportFormat === 'svg' ? 'svg' : 'png';
+    exportToHost(fmt);
+  }
+
   onMount(() => {
     setOnResult(handleResult);
     cleanupBridge = initPluginBridge({
@@ -59,30 +89,7 @@
         Object.assign(appState.params, nextParams);
         handleGeoChange();
       },
-      onRequestExport: async (format = 'svg') => {
-        if (!appState.hasImage) return;
-        if (format === 'svg' && appState.cachedAvgColors) {
-          const svg = generateVoronoiSVG(
-            appState.cachedWidth,
-            appState.cachedHeight,
-            appState.seeds,
-            appState.cachedAvgColors,
-            appState.params
-          );
-          postToHost('voronoi:export-result', { format: 'svg', svg });
-        } else if (canvasEl) {
-          const blob = await new Promise((r) => canvasEl.toBlob(r, 'image/png'));
-          if (blob) {
-            const bytes = Array.from(new Uint8Array(await blob.arrayBuffer()));
-            postToHost('voronoi:export-result', {
-              format: 'png',
-              bytes,
-              width: appState.srcWidth,
-              height: appState.srcHeight,
-            });
-          }
-        }
-      },
+      onRequestExport: exportToHost,
     });
   });
 
@@ -408,6 +415,7 @@
         processing={appState.processing}
         srcData={appState.srcData}
         impact={appState.params.impact}
+        showAlpha={appState.params.transparentBorder || appState.params.wireframe}
         onFile={handleFile}
         onSample={handleSample}
         onImpact={handleImpact}
@@ -422,6 +430,7 @@
         onRegenerate={handleRegenerate}
         onDownload={handleDownload}
         onCopy={handleCopy}
+        onSendToHost={handleSendToHost}
         onClearImpact={handleClearImpact}
         onBlendFile={handleBlendFile}
         onBlendRemove={handleBlendRemove}

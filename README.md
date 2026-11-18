@@ -78,20 +78,22 @@ npm run preview
 ## Project Structure
 
 ```text
+public/
+└── favicon.svg               # Voronoi prism SVG web icon
 src/
 ├── main.js                   # Application entry point
-├── app.css                   # Theme CSS variables, slider/select controls, reduced-motion rules
+├── app.css                   # Theme CSS variables, slider/color controls, reduced-motion rules
 ├── context.svelte.js         # Shared Svelte 5 $state context & toggleTheme()
 ├── components/
 │   ├── App.svelte            # View switching (landing/studio), image loading, worker orchestration
-│   ├── LandingPage.svelte    # Editorial landing page with live interactive Voronoi hero
-│   ├── Header.svelte         # Floating studio masthead, telemetry, and inspector toggle
+│   ├── LandingPage.svelte    # Swiss-specimen landing page with interactive Voronoi hero & % meters
+│   ├── Header.svelte         # Studio top bar with home link, theme toggle, and inspector toggle
 │   ├── ThemeToggle.svelte    # Shared Gallery Stone / Darkroom theme switch
-│   ├── CanvasArea.svelte     # Full-bleed stage, preset dock, impact marker, and compare HUD
-│   ├── Sidebar.svelte        # Floating hairline-divided glass inspector & export actions
+│   ├── CanvasArea.svelte     # Full-bleed stage, preset dock, impact marker, and instant compare
+│   ├── Sidebar.svelte        # Docked desktop inspector / mobile sheet with segmented export & pills
 │   ├── UploadZone.svelte     # Asymmetric viewfinder dropzone & sample artwork loader
 │   ├── LoadingOverlay.svelte # Processing status overlay
-│   ├── ControlSlider.svelte  # Labeled range slider with $props.id() and tabular-nums
+│   ├── ControlSlider.svelte  # Labeled range slider with $props.id(), progress track, and tabular-nums
 │   └── ColorPicker.svelte    # Border color swatch, hex readout, and quick swatches
 └── lib/
     ├── engine.js             # Web Worker lifecycle and transferable buffer messaging

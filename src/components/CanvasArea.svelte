@@ -8,14 +8,10 @@
     processing = false,
     srcData = null,
     impact = null,
-    presets = [],
-    activePreset = null,
-    inspectorOpen = true,
     comparing = $bindable(false),
     onFile,
     onSample,
     onImpact,
-    onPreset,
   } = $props();
 
   let compareCanvas = $state();
@@ -68,11 +64,7 @@
     <UploadZone {onFile} {onSample} />
   {/if}
 
-  <div
-    class="relative flex items-center justify-center w-full h-full pt-6 pb-20 px-4 sm:px-8 transition-[padding] duration-200 ease-[var(--ease-out)] {hasImage && inspectorOpen
-      ? 'md:pr-[316px]'
-      : ''}"
-  >
+  <div class="relative flex items-center justify-center w-full h-full pt-6 pb-24 px-4 sm:px-10">
     <div class="relative flex items-center justify-center max-w-full max-h-full">
       <canvas
         bind:this={canvasEl}
@@ -94,7 +86,7 @@
     {#if hasImage && comparing}
       <canvas
         bind:this={compareCanvas}
-        class="absolute max-w-[calc(100%-2rem)] sm:max-w-[calc(100%-4rem)] max-h-[calc(100%-6.5rem)] rounded-xl ring-1 ring-studio-accent/60 shadow-[0_24px_60px_rgba(17,17,19,0.12)] pointer-events-none"
+        class="absolute max-w-[calc(100%-2rem)] sm:max-w-[calc(100%-5rem)] max-h-[calc(100%-7.5rem)] rounded-xl ring-1 ring-studio-accent/60 shadow-[0_24px_60px_rgba(17,17,19,0.12)] pointer-events-none"
       ></canvas>
       <span class="absolute top-6 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-studio-panel border border-studio-accent/40 text-xs font-medium text-studio-accent">
         Original
@@ -111,42 +103,4 @@
   {/if}
 
   <LoadingOverlay visible={processing && hasImage} />
-
-  {#if hasImage}
-    <!-- Bottom-Left Preset Dock -->
-    <div class="hidden md:flex items-center gap-1 fixed bottom-4 left-6 z-20 p-1.5 rounded-xl bg-studio-panel backdrop-blur-xl border border-studio-border shadow-[0_8px_24px_rgba(17,17,19,0.06)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
-      {#each presets as preset}
-        {@const active = activePreset === preset.name}
-        <button
-          type="button"
-          onclick={() => onPreset?.(preset)}
-          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {active
-            ? 'bg-studio-accent text-studio-accent-ink'
-            : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated'}"
-        >
-          {preset.name}
-        </button>
-      {/each}
-    </div>
-
-    <!-- Bottom-Right Compare Button -->
-    <div
-      class="flex items-center gap-2 fixed bottom-4 right-4 sm:right-6 z-20 transition-[right] duration-200 ease-[var(--ease-out)] {inspectorOpen
-        ? 'md:right-[316px]'
-        : ''}"
-    >
-      <button
-        type="button"
-        onpointerdown={() => (comparing = true)}
-        onpointerup={() => (comparing = false)}
-        onpointerleave={() => (comparing = false)}
-        onpointercancel={() => (comparing = false)}
-        class="px-3.5 py-2 md:py-1.5 rounded-xl bg-studio-panel backdrop-blur-xl border text-xs font-medium shadow-[0_8px_24px_rgba(17,17,19,0.06)] active:scale-[0.96] transition-[border-color,color,transform] duration-150 ease-[var(--ease-out)] {comparing
-          ? 'border-studio-accent text-studio-accent'
-          : 'border-studio-border text-studio-ink hover:border-studio-border-strong'}"
-      >
-        Hold to compare
-      </button>
-    </div>
-  {/if}
 </section>

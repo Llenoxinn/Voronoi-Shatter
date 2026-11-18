@@ -3,9 +3,18 @@
 
   let {
     hasImage = false,
-    inspectorOpen = $bindable(true),
     onHome,
+    onFile,
   } = $props();
+
+  let fileInput = $state();
+
+  function handleFileChange(e) {
+    if (e.target.files.length > 0) {
+      onFile?.(e.target.files[0]);
+      e.target.value = '';
+    }
+  }
 </script>
 
 <header class="sticky top-0 z-30 flex items-center justify-between h-14 px-5 sm:px-8 shrink-0 bg-studio-panel/90 backdrop-blur-md border-b border-studio-border">
@@ -25,24 +34,17 @@
   </button>
 
   <div class="flex items-center gap-2">
-    <ThemeToggle />
-
     {#if hasImage}
       <button
         type="button"
-        onclick={() => (inspectorOpen = !inspectorOpen)}
-        aria-expanded={inspectorOpen}
-        aria-label={inspectorOpen ? 'Hide controls' : 'Show controls'}
-        class="inline-flex items-center gap-1.5 h-9 md:h-8 px-3 rounded-lg text-xs font-medium active:scale-[0.96] transition-[color,background-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {inspectorOpen
-          ? 'bg-studio-ink text-studio-bg'
-          : 'text-studio-ink bg-studio-elevated hover:bg-studio-border'}"
+        onclick={() => fileInput.click()}
+        class="inline-flex items-center justify-center h-9 md:h-8 px-3.5 rounded-lg border border-studio-border-strong bg-studio-elevated/70 hover:bg-studio-elevated text-xs font-medium text-studio-ink active:scale-[0.96] transition-[background-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
       >
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <line x1="15" y1="3" x2="15" y2="21" />
-        </svg>
-        <span class="hidden sm:inline">Controls</span>
+        Replace image
       </button>
+      <input type="file" accept="image/*" bind:this={fileInput} onchange={handleFileChange} aria-label="Replace source image" />
     {/if}
+
+    <ThemeToggle />
   </div>
 </header>

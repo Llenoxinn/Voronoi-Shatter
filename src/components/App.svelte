@@ -331,8 +331,8 @@
   <div class="relative flex flex-col h-[100dvh] bg-studio-bg text-studio-ink select-none overflow-hidden">
     <Header
       hasImage={appState.hasImage}
-      bind:inspectorOpen
       onHome={() => (view = 'landing')}
+      onFile={handleFile}
     />
     <main class="relative flex flex-1 w-full h-full overflow-hidden">
       <CanvasArea
@@ -342,18 +342,14 @@
         processing={appState.processing}
         srcData={appState.srcData}
         impact={appState.params.impact}
-        presets={PRESETS}
-        {activePreset}
-        {inspectorOpen}
         onFile={handleFile}
         onSample={handleSample}
         onImpact={handleImpact}
-        onPreset={applyPreset}
       />
       <Sidebar
-        open={inspectorOpen}
         presets={PRESETS}
         {activePreset}
+        bind:comparing
         onPreset={applyPreset}
         onGeoChange={handleGeoChange}
         onBorderChange={handleBorderChange}
@@ -361,7 +357,6 @@
         onDownload={handleDownload}
         onCopy={handleCopy}
         onClearImpact={handleClearImpact}
-        onFile={handleFile}
         onBlendFile={handleBlendFile}
         onBlendRemove={handleBlendRemove}
         onBlendChange={handleBlendChange}

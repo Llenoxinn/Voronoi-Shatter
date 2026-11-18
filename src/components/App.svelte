@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { createAppState } from '../context.svelte.js';
+  import LandingPage from './LandingPage.svelte';
   import Header from './Header.svelte';
   import Sidebar from './Sidebar.svelte';
   import CanvasArea from './CanvasArea.svelte';
@@ -9,6 +10,17 @@
 
   const appState = createAppState();
 
+  const PRESETS = [
+    { name: 'Prism', desc: 'Refracted shards', cellCount: 80, jitter: 75, refraction: 65, bevel: 55, borderWidth: 1.5, borderColor: '#111113' },
+    { name: 'Glass', desc: 'Stained bevels', cellCount: 120, jitter: 45, refraction: 35, bevel: 70, borderWidth: 3, borderColor: '#18181b' },
+    { name: 'Mosaic', desc: 'Flat tiles', cellCount: 90, jitter: 60, refraction: 0, bevel: 15, borderWidth: 1.5, borderColor: '#111113' },
+    { name: 'Low Poly', desc: 'Clean facets', cellCount: 220, jitter: 90, refraction: 0, bevel: 35, borderWidth: 0, borderColor: '#111113' },
+    { name: 'Cracked', desc: 'Fractured lens', cellCount: 55, jitter: 80, refraction: 85, bevel: 60, borderWidth: 2.5, borderColor: '#111113' },
+    { name: 'Fine', desc: 'Micro crystal', cellCount: 400, jitter: 55, refraction: 40, bevel: 30, borderWidth: 0.5, borderColor: '#111113' },
+  ];
+
+  let view = $state('landing');
+  let inspectorOpen = $state(true);
   let canvasEl = $state();
   let currentId = 0;
   let crossfadeAnim = null;
@@ -18,9 +30,31 @@
   const MAX_IMAGE = 1200;
   const CROSSFADE_MS = 320;
 
+  const activePreset = $derived(
+    PRESETS.find(
+      (p) =>
+        p.cellCount === appState.params.cellCount &&
+        p.jitter === appState.params.jitter &&
+        p.refraction === appState.params.refraction &&
+        p.bevel === appState.params.bevel &&
+        p.borderWidth === appState.params.borderWidth &&
+        p.borderColor.toLowerCase() === appState.params.borderColor.toLowerCase()
+    )?.name ?? null
+  );
+
   onMount(() => {
     setOnResult(handleResult);
   });
+
+  function applyPreset(preset) {
+    appState.params.cellCount = preset.cellCount;
+    appState.params.jitter = preset.jitter;
+    appState.params.refraction = preset.refraction;
+    appState.params.bevel = preset.bevel;
+    appState.params.borderWidth = preset.borderWidth;
+    appState.params.borderColor = preset.borderColor;
+    handleGeoChange();
+  }
 
   function handleResult(result) {
     if (result.id !== currentId) return;
@@ -105,6 +139,7 @@
 
   function handleFile(file) {
     if (!file || !file.type.startsWith('image/')) return;
+    view = 'studio';
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -209,6 +244,7 @@
   }
 
   function handleSample() {
+    view = 'studio';
     const w = 960;
     const h = 640;
     const oc = document.createElement('canvas');
@@ -217,14 +253,14 @@
     const ctx = oc.getContext('2d');
 
     const bg = ctx.createLinearGradient(0, 0, w, h);
-    bg.addColorStop(0, '#0f172a');
-    bg.addColorStop(0.5, '#312e81');
-    bg.addColorStop(1, '#be185d');
+    bg.addColorStop(0, '#141418');
+    bg.addColorStop(0.45, '#2b2240');
+    bg.addColorStop(1, '#d94826');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
     const orb = ctx.createRadialGradient(w * 0.34, h * 0.38, 20, w * 0.34, h * 0.38, 220);
-    orb.addColorStop(0, '#fde047');
+    orb.addColorStop(0, '#fde68a');
     orb.addColorStop(0.5, '#f97316');
     orb.addColorStop(1, 'rgba(249, 115, 22, 0)');
     ctx.fillStyle = orb;
@@ -232,7 +268,7 @@
     ctx.arc(w * 0.34, h * 0.38, 220, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = 'rgba(45, 212, 191, 0.78)';
+    ctx.fillStyle = 'rgba(13, 148, 136, 0.85)';
     ctx.beginPath();
     ctx.moveTo(w * 0.56, h * 0.18);
     ctx.lineTo(w * 0.86, h * 0.72);
@@ -240,13 +276,19 @@
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+    ctx.fillStyle = 'rgba(244, 243, 239, 0.16)';
     ctx.fillRect(w * 0.14, h * 0.58, 280, 140);
 
-    loadImage(oc);
+    requestAnimationFrame(() => loadImage(oc));
+  }
+
+  function handleOpenPreset(preset) {
+    applyPreset(preset);
+    handleSample();
   }
 
   function handleKeydown(e) {
+    if (view !== 'studio') return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
     if (e.key === ' ' && !e.repeat) { e.preventDefault(); handleRegenerate(); }
     if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && appState.hasImage) { comparing = true; }
@@ -259,7 +301,7 @@
       appState.params.bevel = 40;
       appState.params.dispersion = 20;
       appState.params.borderWidth = 1.5;
-      appState.params.borderColor = '#0b0c0f';
+      appState.params.borderColor = '#111113';
       appState.params.impact = null;
       handleGeoChange();
     }
@@ -272,31 +314,57 @@
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
 
-<div class="flex flex-col h-[100dvh] bg-studio-bg text-studio-ink select-none">
-  <Header hasImage={appState.hasImage} processing={appState.processing} />
-  <main class="flex flex-col md:flex-row flex-1 overflow-hidden">
-    <Sidebar
-      onGeoChange={handleGeoChange}
-      onBorderChange={handleBorderChange}
-      onRegenerate={handleRegenerate}
-      onDownload={handleDownload}
-      onCopy={handleCopy}
-      onClearImpact={handleClearImpact}
-      onFile={handleFile}
-      onBlendFile={handleBlendFile}
-      onBlendRemove={handleBlendRemove}
-      onBlendChange={handleBlendChange}
-    />
-    <CanvasArea
-      bind:canvasEl
-      bind:comparing
+{#if view === 'landing'}
+  <LandingPage
+    presets={PRESETS}
+    onOpenStudio={() => (view = 'studio')}
+    onOpenSample={handleSample}
+    onOpenPreset={handleOpenPreset}
+    onFile={handleFile}
+  />
+{:else}
+  <div class="relative flex flex-col h-[100dvh] bg-studio-bg text-studio-ink select-none overflow-hidden">
+    <Header
       hasImage={appState.hasImage}
       processing={appState.processing}
-      srcData={appState.srcData}
-      impact={appState.params.impact}
-      onFile={handleFile}
-      onSample={handleSample}
-      onImpact={handleImpact}
+      width={appState.srcWidth}
+      height={appState.srcHeight}
+      cellCount={appState.seeds.length}
+      bind:inspectorOpen
+      onHome={() => (view = 'landing')}
     />
-  </main>
-</div>
+    <main class="relative flex flex-1 w-full h-full overflow-hidden">
+      <CanvasArea
+        bind:canvasEl
+        bind:comparing
+        hasImage={appState.hasImage}
+        processing={appState.processing}
+        srcData={appState.srcData}
+        impact={appState.params.impact}
+        presets={PRESETS}
+        {activePreset}
+        {inspectorOpen}
+        onFile={handleFile}
+        onSample={handleSample}
+        onImpact={handleImpact}
+        onPreset={applyPreset}
+      />
+      <Sidebar
+        open={inspectorOpen}
+        presets={PRESETS}
+        {activePreset}
+        onPreset={applyPreset}
+        onGeoChange={handleGeoChange}
+        onBorderChange={handleBorderChange}
+        onRegenerate={handleRegenerate}
+        onDownload={handleDownload}
+        onCopy={handleCopy}
+        onClearImpact={handleClearImpact}
+        onFile={handleFile}
+        onBlendFile={handleBlendFile}
+        onBlendRemove={handleBlendRemove}
+        onBlendChange={handleBlendChange}
+      />
+    </main>
+  </div>
+{/if}

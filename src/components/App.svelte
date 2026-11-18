@@ -7,6 +7,8 @@
   import CanvasArea from './CanvasArea.svelte';
   import { setOnResult, requestFullProcess, requestRenderOnly } from '../lib/engine.js';
   import { snapshotCanvas } from '../lib/canvas-utils.js';
+  import { generateVoronoiSVG } from '../lib/svg-export.js';
+  import { isEmbedMode, initPluginBridge, postToHost } from '../lib/plugin-api.js';
 
   const appState = createAppState();
 
@@ -19,12 +21,13 @@
     { name: 'Fine', desc: 'Micro crystal', cellCount: 400, jitter: 55, refraction: 40, bevel: 30, borderWidth: 0.5, borderColor: '#111113' },
   ];
 
-  let view = $state('landing');
+  let view = $state(isEmbedMode() ? 'studio' : 'landing');
   let canvasEl = $state();
   let currentId = 0;
   let crossfadeAnim = null;
   let processTimer = null;
   let comparing = $state(false);
+  let cleanupBridge = null;
 
   const MAX_IMAGE = 1200;
   const CROSSFADE_MS = 320;
@@ -43,9 +46,48 @@
 
   onMount(() => {
     setOnResult(handleResult);
+    cleanupBridge = initPluginBridge({
+      onLoadImageDataUrl: (dataUrl) => {
+        if (!dataUrl) return;
+        view = 'studio';
+        const img = new Image();
+        img.onload = () => loadImage(img);
+        img.src = dataUrl;
+      },
+      onSetParams: (nextParams) => {
+        if (!nextParams) return;
+        Object.assign(appState.params, nextParams);
+        handleGeoChange();
+      },
+      onRequestExport: async (format = 'svg') => {
+        if (!appState.hasImage) return;
+        if (format === 'svg' && appState.cachedAvgColors) {
+          const svg = generateVoronoiSVG(
+            appState.cachedWidth,
+            appState.cachedHeight,
+            appState.seeds,
+            appState.cachedAvgColors,
+            appState.params
+          );
+          postToHost('voronoi:export-result', { format: 'svg', svg });
+        } else if (canvasEl) {
+          const blob = await new Promise((r) => canvasEl.toBlob(r, 'image/png'));
+          if (blob) {
+            const bytes = Array.from(new Uint8Array(await blob.arrayBuffer()));
+            postToHost('voronoi:export-result', {
+              format: 'png',
+              bytes,
+              width: appState.srcWidth,
+              height: appState.srcHeight,
+            });
+          }
+        }
+      },
+    });
   });
 
   onDestroy(() => {
+    cleanupBridge?.();
     clearTimeout(processTimer);
     if (crossfadeAnim) cancelAnimationFrame(crossfadeAnim);
   });
@@ -232,8 +274,30 @@
   }
 
   function handleDownload() {
-    if (!canvasEl) return;
+    if (!appState.hasImage) return;
     const format = appState.params.exportFormat || 'png';
+
+    if (format === 'svg' && appState.cachedAvgColors) {
+      const svg = generateVoronoiSVG(
+        appState.cachedWidth,
+        appState.cachedHeight,
+        appState.seeds,
+        appState.cachedAvgColors,
+        appState.params
+      );
+      const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'voronoi-shatter.svg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      return;
+    }
+
+    if (!canvasEl) return;
     const mimeType = `image/${format}`;
     const quality = format === 'png' ? undefined : (appState.params.exportQuality || 92) / 100;
 
@@ -306,6 +370,9 @@
       appState.params.dispersion = 20;
       appState.params.borderWidth = 1.5;
       appState.params.borderColor = '#111113';
+      appState.params.metric = 'euclidean';
+      appState.params.transparentBorder = false;
+      appState.params.wireframe = false;
       appState.params.impact = null;
       handleGeoChange();
     }

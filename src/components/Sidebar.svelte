@@ -88,6 +88,31 @@
             <ControlSlider label="Jitter" bind:value={appState.params.jitter} min={0} max={100} step={1} unit="%" onchange={onGeoChange} />
           </div>
 
+          <div class="mt-4 pt-3 border-t border-studio-border">
+            <span class="block text-xs font-medium text-studio-muted mb-2">Shard Metric</span>
+            <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-studio-elevated border border-studio-border" role="group" aria-label="Distance metric">
+              {#each [
+                { id: 'euclidean', label: 'Crystal' },
+                { id: 'manhattan', label: 'Diamond' },
+                { id: 'chebyshev', label: 'Grid' },
+              ] as m}
+                {@const active = appState.params.metric === m.id}
+                <button
+                  type="button"
+                  onclick={() => {
+                    appState.params.metric = m.id;
+                    onGeoChange();
+                  }}
+                  class="h-9 md:h-8 rounded-lg text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
+                    ? 'bg-studio-panel text-studio-ink shadow-sm'
+                    : 'text-studio-muted hover:text-studio-ink'}"
+                >
+                  {m.label}
+                </button>
+              {/each}
+            </div>
+          </div>
+
           <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 mt-4 pt-3 border-t border-studio-border">
             {#each presets as preset}
               {@const active = activePreset === preset.name}
@@ -122,7 +147,35 @@
             <ControlSlider label="Dispersion" bind:value={appState.params.dispersion} min={0} max={100} step={1} unit="%" onchange={onBorderChange} />
             <ControlSlider label="Border Width" bind:value={appState.params.borderWidth} min={0} max={10} step={0.5} unit="px" onchange={onBorderChange} />
           </div>
-          <div class="mt-4 pt-3 border-t border-studio-border">
+          <div class="mt-4 pt-3 border-t border-studio-border space-y-3">
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onclick={() => {
+                  appState.params.transparentBorder = !appState.params.transparentBorder;
+                  onBorderChange();
+                }}
+                aria-pressed={appState.params.transparentBorder}
+                class="h-10 md:h-8 px-3 rounded-lg text-xs font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {appState.params.transparentBorder
+                  ? 'bg-studio-ink text-studio-bg border-studio-ink'
+                  : 'bg-studio-elevated/60 text-studio-muted border-studio-border hover:text-studio-ink'}"
+              >
+                Cutout Gaps
+              </button>
+              <button
+                type="button"
+                onclick={() => {
+                  appState.params.wireframe = !appState.params.wireframe;
+                  onBorderChange();
+                }}
+                aria-pressed={appState.params.wireframe}
+                class="h-10 md:h-8 px-3 rounded-lg text-xs font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {appState.params.wireframe
+                  ? 'bg-studio-ink text-studio-bg border-studio-ink'
+                  : 'bg-studio-elevated/60 text-studio-muted border-studio-border hover:text-studio-ink'}"
+              >
+                Wireframe Only
+              </button>
+            </div>
             <ColorPicker bind:value={appState.params.borderColor} onchange={onBorderChange} />
           </div>
         {:else if activeTab === 'blend'}
@@ -175,11 +228,12 @@
           {/if}
         {:else if activeTab === 'export'}
           <div class="space-y-4">
-            <div class="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-studio-elevated border border-studio-border" role="group" aria-label="Export format">
+            <div class="grid grid-cols-4 gap-1 p-1 rounded-xl bg-studio-elevated border border-studio-border" role="group" aria-label="Export format">
               {#each [
                 { id: 'png', label: 'PNG' },
                 { id: 'jpeg', label: 'JPEG' },
                 { id: 'webp', label: 'WebP' },
+                { id: 'svg', label: 'SVG' },
               ] as fmt}
                 {@const active = appState.params.exportFormat === fmt.id}
                 <button
@@ -193,7 +247,7 @@
                 </button>
               {/each}
             </div>
-            {#if appState.params.exportFormat !== 'png'}
+            {#if appState.params.exportFormat !== 'png' && appState.params.exportFormat !== 'svg'}
               <ControlSlider label="Quality" bind:value={appState.params.exportQuality} min={10} max={100} step={1} unit="%" />
             {/if}
           </div>

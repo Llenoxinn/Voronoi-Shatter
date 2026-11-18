@@ -20,7 +20,6 @@
   ];
 
   let view = $state('landing');
-  let inspectorOpen = $state(true);
   let canvasEl = $state();
   let currentId = 0;
   let crossfadeAnim = null;

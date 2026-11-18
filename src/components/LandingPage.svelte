@@ -25,9 +25,9 @@
     'bg-[#d94826] text-white',
     'bg-[#111113] text-[#f4f3ef]',
     'bg-[#0d9488] text-white',
-    'bg-[#2563eb] text-white',
+    'bg-[#1d4ed8] text-white',
     'bg-[#b45309] text-white',
-    'bg-[#4f46e5] text-white',
+    'bg-[#334155] text-white',
   ];
 
   function buildHeroSource() {

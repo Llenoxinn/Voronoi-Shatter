@@ -35,6 +35,12 @@
     activeTab = activeTab === tab ? null : tab;
   }
 
+  function handleWindowKeydown(e) {
+    if (e.key === 'Escape' && activeTab) {
+      activeTab = null;
+    }
+  }
+
   function handleBlendFileChange(e) {
     if (e.target.files.length > 0) {
       onBlendFile(e.target.files[0]);
@@ -52,6 +58,8 @@
     }
   }
 </script>
+
+<svelte:window onkeydown={handleWindowKeydown} />
 
 {#if appState.hasImage}
   <div class="fixed bottom-4 inset-x-0 z-30 flex flex-col items-center px-3 pointer-events-none">
@@ -194,7 +202,7 @@
     {/if}
 
     <!-- Bottom-Docked Studio Command Bar -->
-    <div class="pointer-events-auto flex flex-wrap items-center justify-center gap-1.5 p-1.5 rounded-2xl bg-studio-panel/95 backdrop-blur-xl border border-studio-border-strong shadow-[0_16px_44px_rgba(17,17,19,0.12)] dark:shadow-[0_20px_56px_rgba(0,0,0,0.65)]">
+    <div class="pointer-events-auto flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 p-1.5 rounded-2xl bg-studio-panel/95 backdrop-blur-xl border border-studio-border-strong shadow-[0_16px_44px_rgba(17,17,19,0.12)] dark:shadow-[0_20px_56px_rgba(0,0,0,0.65)] max-w-full">
       <!-- Mode Tabs -->
       <div class="flex items-center gap-1">
         {#each [
@@ -208,7 +216,7 @@
             type="button"
             onclick={() => toggleTab(tab.id)}
             aria-expanded={active}
-            class="h-10 md:h-9 px-3 rounded-xl text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
+            class="h-10 md:h-9 px-2.5 sm:px-3 rounded-[10px] text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
               ? 'bg-studio-ink text-studio-bg'
               : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated'}"
           >
@@ -227,7 +235,7 @@
           onpointerup={() => (comparing = false)}
           onpointerleave={() => (comparing = false)}
           onpointercancel={() => (comparing = false)}
-          class="h-10 md:h-9 px-3 rounded-xl text-xs font-medium border active:scale-[0.96] transition-[border-color,color,transform] duration-150 {comparing
+          class="h-10 md:h-9 px-2.5 sm:px-3 rounded-[10px] text-xs font-medium border active:scale-[0.96] transition-[border-color,color,transform] duration-150 {comparing
             ? 'border-studio-accent text-studio-accent bg-studio-accent-soft'
             : 'border-studio-border bg-studio-elevated/60 text-studio-ink hover:border-studio-border-strong'}"
         >
@@ -238,7 +246,7 @@
           type="button"
           onclick={onRegenerate}
           disabled={appState.processing}
-          class="h-10 md:h-9 px-3.5 rounded-xl text-xs font-medium bg-studio-accent text-studio-accent-ink hover:opacity-90 enabled:active:scale-[0.96] disabled:opacity-30 transition-[opacity,transform] duration-150"
+          class="h-10 md:h-9 px-3 sm:px-3.5 rounded-[10px] text-xs font-medium bg-studio-accent text-studio-accent-ink hover:opacity-90 enabled:active:scale-[0.96] disabled:opacity-30 transition-[opacity,transform] duration-150"
         >
           Reseed
         </button>
@@ -246,7 +254,7 @@
         <button
           type="button"
           onclick={handleCopyClick}
-          class="h-10 md:h-9 px-3 rounded-xl text-xs font-medium bg-studio-elevated text-studio-ink border border-studio-border hover:border-studio-border-strong active:scale-[0.96] transition-[border-color,transform] duration-150"
+          class="h-10 md:h-9 px-2.5 sm:px-3 rounded-[10px] text-xs font-medium bg-studio-elevated text-studio-ink border border-studio-border hover:border-studio-border-strong active:scale-[0.96] transition-[border-color,transform] duration-150"
         >
           {copied ? 'Copied' : 'Copy'}
         </button>
@@ -254,7 +262,7 @@
         <button
           type="button"
           onclick={onDownload}
-          class="h-10 md:h-9 px-3.5 rounded-xl text-xs font-medium bg-studio-ink text-studio-bg hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
+          class="h-10 md:h-9 px-3 sm:px-3.5 rounded-[10px] text-xs font-medium bg-studio-ink text-studio-bg hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
         >
           Export
         </button>

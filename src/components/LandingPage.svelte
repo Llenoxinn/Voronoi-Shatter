@@ -8,6 +8,7 @@
     presets = [],
     onOpenStudio,
     onOpenSample,
+    onOpenDemo,
     onOpenPreset,
     onFile,
   } = $props();
@@ -18,7 +19,12 @@
   let activeHeroPreset = $state('Prism');
   let heroMetric = $state('euclidean');
   let heroWireframe = $state(false);
+  let heroCutout = $state(false);
   let heroCellCount = $state(80);
+  let heroRefraction = $state(65);
+  let heroBevel = $state(55);
+  let heroDispersion = $state(24);
+  let heroBorderWidth = $state(1.5);
   let fileInput = $state();
 
   let srcPixels = null;
@@ -77,19 +83,10 @@
     srcPixels = ctx.getImageData(0, 0, W, H).data;
   }
 
-  function renderHero(presetOverride = null) {
+  function renderHero() {
     if (!heroCanvas || !srcPixels) return;
-    const p =
-      presetOverride ||
-      presets.find((item) => item.name === activeHeroPreset) || {
-        cellCount: 80,
-        jitter: 75,
-        refraction: 65,
-        bevel: 55,
-        borderWidth: 1.5,
-      };
     const count = Math.max(24, Math.min(160, heroCellCount));
-    const seeds = generateSeeds(W, H, count, p.jitter, heroSeed, heroImpact);
+    const seeds = generateSeeds(W, H, count, 75, heroSeed, heroImpact);
     const { nearestSeed, dist1Sq, dist2Sq, avgColors } = computeVoronoi(
       srcPixels,
       W,
@@ -97,7 +94,7 @@
       seeds,
       heroMetric
     );
-    lastHeroVoronoi = { seeds, avgColors, borderWidth: p.borderWidth };
+    lastHeroVoronoi = { seeds, avgColors, borderWidth: heroBorderWidth };
     const out = renderVoronoi(
       W,
       H,
@@ -107,15 +104,15 @@
       avgColors,
       seeds,
       srcPixels,
-      p.borderWidth,
+      heroBorderWidth,
       [17, 17, 19],
-      p.refraction,
-      p.bevel,
-      24,
+      heroRefraction,
+      heroBevel,
+      heroDispersion,
       null,
       'normal',
       0,
-      false,
+      heroCutout,
       heroWireframe
     );
     heroCanvas.width = W;
@@ -133,6 +130,7 @@
       {
         borderWidth: lastHeroVoronoi.borderWidth,
         borderColor: '#111113',
+        transparentBorder: heroCutout,
         wireframe: heroWireframe,
       }
     );
@@ -161,10 +159,24 @@
 
   function selectHeroPreset(preset) {
     activeHeroPreset = preset.name;
-    if (typeof preset.cellCount === 'number') {
-      heroCellCount = Math.max(24, Math.min(160, preset.cellCount));
-    }
-    renderHero(preset);
+    if (typeof preset.cellCount === 'number') heroCellCount = Math.max(24, Math.min(160, preset.cellCount));
+    if (typeof preset.refraction === 'number') heroRefraction = preset.refraction;
+    if (typeof preset.bevel === 'number') heroBevel = preset.bevel;
+    if (typeof preset.borderWidth === 'number') heroBorderWidth = preset.borderWidth;
+    renderHero();
+  }
+
+  function launchDemoInStudio() {
+    onOpenDemo?.({
+      cellCount: heroCellCount,
+      metric: heroMetric,
+      wireframe: heroWireframe,
+      refraction: heroRefraction,
+      bevel: heroBevel,
+      dispersion: heroDispersion,
+      impact: heroImpact,
+      seed: heroSeed,
+    });
   }
 
   function handleFileChange(e) {
@@ -280,88 +292,223 @@
       </div>
 
       <div class="relative -mt-6 sm:-mt-10 md:-mt-14 rounded-[1.75rem] p-1.5 bg-studio-ink/[0.04] dark:bg-white/[0.04] ring-1 ring-studio-border">
-        <div class="rounded-[calc(1.75rem-0.375rem)] bg-studio-panel p-2 sm:p-2.5 shadow-[0_28px_80px_rgba(17,17,19,0.12),inset_0_1px_0_rgba(255,255,255,0.5)] dark:shadow-[0_32px_90px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.08)]">
-          <div class="relative rounded-xl overflow-hidden transition-colors duration-150 {heroWireframe ? 'bg-[#f4f3ef]' : 'bg-studio-bg'}">
-            <canvas
-              bind:this={heroCanvas}
-              onclick={handleHeroClick}
-              title="Click anywhere to move the fracture origin"
-              class="block w-full h-auto cursor-crosshair"
-            ></canvas>
-            <div
-              aria-hidden="true"
-              class="absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-studio-accent bg-studio-bg/60 pointer-events-none"
-              style="left: {heroImpact.x * 100}%; top: {heroImpact.y * 100}%;"
-            ></div>
+        <div class="rounded-[calc(1.75rem-0.375rem)] bg-studio-panel overflow-hidden border border-studio-border shadow-[0_28px_80px_rgba(17,17,19,0.12),inset_0_1px_0_rgba(255,255,255,0.5)] dark:shadow-[0_32px_90px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.08)]">
+          <!-- Studio Top Workstation Bar -->
+          <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 bg-studio-panel border-b border-studio-border">
+            <div class="flex items-center gap-2.5">
+              <div class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-studio-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
+                  <line x1="12" y1="22" x2="12" y2="12" />
+                  <line x1="22" y1="8.5" x2="12" y2="12" />
+                  <line x1="2" y1="8.5" x2="12" y2="12" />
+                </svg>
+                <span class="text-xs font-semibold text-studio-ink">Studio Preview</span>
+              </div>
+              <span class="hidden sm:inline-block px-2 py-0.5 rounded bg-studio-elevated font-mono text-[10px] text-studio-muted tabular-nums">
+                {W}&times;{H} &middot; {heroCellCount} shards
+              </span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                onclick={exportHeroSVG}
+                class="h-7 px-2.5 rounded-md border border-studio-border bg-studio-elevated/70 hover:bg-studio-elevated text-[11px] font-medium text-studio-ink active:scale-[0.96] transition-[background-color,transform] duration-150"
+              >
+                Export SVG
+              </button>
+              <button
+                type="button"
+                onclick={launchDemoInStudio}
+                class="h-7 px-3 rounded-md bg-studio-ink text-studio-bg text-[11px] font-medium hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
+              >
+                Open Full Studio
+              </button>
+            </div>
           </div>
 
-          <div class="mt-2.5 px-2 py-1.5 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex flex-wrap items-center gap-2">
-              <div
-                role="group"
-                aria-label="Shard metric"
-                class="inline-flex items-center p-0.5 rounded-full bg-studio-bg border border-studio-border"
+          <!-- 3-Column Workstation Preview (Tool Rail + Matte Canvas + Pro Inspector) -->
+          <div class="grid grid-cols-1 lg:grid-cols-[44px_1fr_256px]">
+            <!-- Left Tool Rail -->
+            <div class="hidden lg:flex flex-col items-center py-2.5 gap-1.5 bg-studio-panel border-r border-studio-border">
+              <button
+                type="button"
+                onclick={() => {
+                  heroImpact = heroImpact ? null : { x: 0.38, y: 0.44 };
+                  renderHero();
+                }}
+                title={heroImpact ? 'Radial impact active — click to toggle grid' : 'Click to enable radial impact'}
+                aria-label="Toggle radial impact"
+                aria-pressed={Boolean(heroImpact)}
+                class="w-7 h-7 rounded-md inline-flex items-center justify-center active:scale-[0.96] {heroImpact
+                  ? 'bg-studio-accent text-studio-accent-ink'
+                  : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated'}"
               >
-                {#each HERO_METRICS as metric}
-                  {@const active = heroMetric === metric.id}
-                  <button
-                    type="button"
-                    onclick={() => {
-                      heroMetric = metric.id;
-                      renderHero();
-                    }}
-                    class="h-7 px-3 rounded-full text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
-                      ? 'bg-studio-ink text-studio-bg'
-                      : 'text-studio-muted hover:text-studio-ink'}"
-                  >
-                    {metric.label}
-                  </button>
-                {/each}
-              </div>
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <circle cx="12" cy="12" r="7" />
+                  <circle cx="12" cy="12" r="2" />
+                </svg>
+              </button>
 
               <button
                 type="button"
-                aria-pressed={heroWireframe}
+                onclick={() => {
+                  heroSeed = (heroSeed + 7919) % 999983;
+                  renderHero();
+                }}
+                title="Reseed shards"
+                aria-label="Reseed shards"
+                class="w-7 h-7 rounded-md inline-flex items-center justify-center text-studio-muted hover:text-studio-ink hover:bg-studio-elevated active:scale-[0.96]"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                onclick={() => {
+                  heroCutout = !heroCutout;
+                  renderHero();
+                }}
+                title="Cutout gaps"
+                aria-label="Toggle cutout gaps"
+                aria-pressed={heroCutout}
+                class="w-7 h-7 rounded-md inline-flex items-center justify-center active:scale-[0.96] {heroCutout
+                  ? 'bg-studio-ink text-studio-bg'
+                  : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated'}"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <rect x="4" y="4" width="6" height="6" rx="1" />
+                  <rect x="14" y="4" width="6" height="6" rx="1" />
+                  <rect x="4" y="14" width="6" height="6" rx="1" />
+                  <rect x="14" y="14" width="6" height="6" rx="1" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
                 onclick={() => {
                   heroWireframe = !heroWireframe;
                   renderHero();
                 }}
-                class="h-8 px-3.5 rounded-full border text-xs font-medium active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {heroWireframe
-                  ? 'bg-studio-ink text-studio-bg border-studio-ink'
-                  : 'bg-studio-bg text-studio-muted border-studio-border hover:text-studio-ink hover:border-studio-border-strong'}"
+                title="Wireframe only"
+                aria-label="Toggle wireframe"
+                aria-pressed={heroWireframe}
+                class="w-7 h-7 rounded-md inline-flex items-center justify-center active:scale-[0.96] {heroWireframe
+                  ? 'bg-studio-ink text-studio-bg'
+                  : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated'}"
               >
-                Wireframe
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="12 3 21 9 18 20 6 20 3 9 12 3" />
+                  <line x1="12" y1="3" x2="12" y2="20" />
+                </svg>
               </button>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3">
-              <label class="inline-flex items-center gap-2.5 text-xs text-studio-muted">
-                <span class="font-medium">Cells</span>
-                <input
-                  type="range"
-                  min="24"
-                  max="160"
-                  step="1"
-                  bind:value={heroCellCount}
-                  oninput={() => renderHero()}
-                  aria-label="Cell count"
-                  class="w-24 sm:w-28 accent-studio-accent cursor-pointer"
-                />
-                <span class="font-mono tabular-nums text-studio-ink w-7 text-right">{heroCellCount}</span>
-              </label>
-
-              <button
-                type="button"
-                onclick={exportHeroSVG}
-                class="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-studio-ink text-studio-bg text-xs font-medium hover:opacity-90 active:scale-[0.96] transition-[opacity,transform] duration-150"
+            <!-- Matte Canvas Stage -->
+            <div class="p-3 sm:p-4 flex items-center justify-center bg-studio-elevated/55 dark:bg-[#0a0a0c]">
+              <div
+                class="relative w-full rounded-lg overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shadow-[0_14px_36px_rgba(17,17,19,0.16)]"
+                style={heroWireframe || heroCutout
+                  ? 'background-color: var(--studio-elevated); background-image: conic-gradient(var(--studio-border) 90deg, transparent 90deg 180deg, var(--studio-border) 180deg 270deg, transparent 270deg); background-size: 16px 16px;'
+                  : ''}
               >
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                <span>Export SVG</span>
-              </button>
+                <canvas
+                  bind:this={heroCanvas}
+                  onclick={handleHeroClick}
+                  title="Click anywhere to move the fracture origin"
+                  class="block w-full h-auto cursor-crosshair"
+                ></canvas>
+                {#if heroImpact}
+                  <div
+                    aria-hidden="true"
+                    class="absolute w-3.5 h-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-studio-accent bg-studio-bg/60 pointer-events-none"
+                    style="left: {heroImpact.x * 100}%; top: {heroImpact.y * 100}%;"
+                  ></div>
+                {/if}
+              </div>
+            </div>
+
+            <!-- Miniature Pro Inspector -->
+            <div class="bg-studio-panel border-t lg:border-t-0 lg:border-l border-studio-border p-3.5 space-y-3.5 text-left">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] font-semibold text-studio-ink">Presets</span>
+                  <span class="text-[10px] text-studio-subtle">Click canvas to fracture</span>
+                </div>
+                <div class="grid grid-cols-4 lg:grid-cols-2 gap-1">
+                  {#each presets.slice(0, 4) as preset}
+                    {@const active = activeHeroPreset === preset.name}
+                    <button
+                      type="button"
+                      onclick={() => selectHeroPreset(preset)}
+                      class="h-7 px-2 rounded-md text-[11px] font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {active
+                        ? 'bg-studio-accent text-studio-accent-ink border-studio-accent'
+                        : 'bg-studio-elevated/60 text-studio-muted border-studio-border hover:text-studio-ink'}"
+                    >
+                      {preset.name}
+                    </button>
+                  {/each}
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-studio-border">
+                <span class="block text-[11px] font-semibold text-studio-ink mb-1.5">Metric</span>
+                <div class="grid grid-cols-3 gap-1 p-0.5 rounded-lg bg-studio-elevated border border-studio-border" role="group" aria-label="Shard metric">
+                  {#each HERO_METRICS as metric}
+                    {@const active = heroMetric === metric.id}
+                    <button
+                      type="button"
+                      onclick={() => {
+                        heroMetric = metric.id;
+                        renderHero();
+                      }}
+                      class="h-6 rounded-md text-[11px] font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
+                        ? 'bg-studio-panel text-studio-ink shadow-sm'
+                        : 'text-studio-muted hover:text-studio-ink'}"
+                    >
+                      {metric.label}
+                    </button>
+                  {/each}
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-studio-border space-y-2.5">
+                <label class="block space-y-1">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-studio-muted font-medium">Cells</span>
+                    <span class="font-mono font-semibold text-studio-ink tabular-nums">{heroCellCount}</span>
+                  </div>
+                  <input type="range" min="24" max="160" step="1" bind:value={heroCellCount} oninput={() => renderHero()} class="w-full" />
+                </label>
+
+                <label class="block space-y-1">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-studio-muted font-medium">Refraction</span>
+                    <span class="font-mono font-semibold text-studio-ink tabular-nums">{heroRefraction}%</span>
+                  </div>
+                  <input type="range" min="0" max="100" step="1" bind:value={heroRefraction} oninput={() => renderHero()} class="w-full" />
+                </label>
+
+                <label class="block space-y-1">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-studio-muted font-medium">Bevel</span>
+                    <span class="font-mono font-semibold text-studio-ink tabular-nums">{heroBevel}%</span>
+                  </div>
+                  <input type="range" min="0" max="100" step="1" bind:value={heroBevel} oninput={() => renderHero()} class="w-full" />
+                </label>
+
+                <label class="block space-y-1">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-studio-muted font-medium">Dispersion</span>
+                    <span class="font-mono font-semibold text-studio-ink tabular-nums">{heroDispersion}%</span>
+                  </div>
+                  <input type="range" min="0" max="100" step="1" bind:value={heroDispersion} oninput={() => renderHero()} class="w-full" />
+                </label>
+              </div>
             </div>
           </div>
         </div>

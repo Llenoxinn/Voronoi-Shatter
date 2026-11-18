@@ -16,7 +16,7 @@ export function createAppState() {
       bevel: 40,
       dispersion: 20,
       borderWidth: 1.5,
-      borderColor: '#0b0c0f',
+      borderColor: '#111113',
       seed: 104729,
       impact: null,
       blendMode: 'normal',

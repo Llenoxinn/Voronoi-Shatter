@@ -6,41 +6,39 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 
-  /* Editorial Light Studio (default) */
-  --studio-bg: #faf8f4;
-  --studio-panel: #ffffff;
-  --studio-elevated: #f3f0ea;
-  --studio-border: rgba(20, 20, 24, 0.08);
-  --studio-border-strong: rgba(20, 20, 24, 0.16);
-  --studio-ink: #141418;
-  --studio-muted: #5b5b66;
-  --studio-subtle: #8b8b96;
-  --studio-accent: #6d4aff;
-  --studio-accent-soft: rgba(109, 74, 255, 0.1);
+  /* Gallery Stone (default) — Swiss / Hardware Studio */
+  --studio-bg: #f4f3ef;
+  --studio-panel: rgba(255, 255, 255, 0.86);
+  --studio-elevated: #eae8e1;
+  --studio-border: rgba(17, 17, 19, 0.09);
+  --studio-border-strong: rgba(17, 17, 19, 0.18);
+  --studio-ink: #111113;
+  --studio-muted: #57565d;
+  --studio-subtle: #88868f;
+  --studio-accent: #d94826;
+  --studio-accent-soft: rgba(217, 72, 38, 0.11);
   --studio-accent-ink: #ffffff;
-  --studio-grid-dot: rgba(20, 20, 24, 0.07);
-  --studio-glow: rgba(109, 74, 255, 0.06);
-  --studio-track: rgba(20, 20, 24, 0.12);
-  --studio-track-hover: rgba(20, 20, 24, 0.2);
+  --studio-grid-dot: rgba(17, 17, 19, 0.08);
+  --studio-track: rgba(17, 17, 19, 0.13);
+  --studio-track-hover: rgba(17, 17, 19, 0.22);
 }
 
 html.dark {
-  /* Darkroom Studio */
-  --studio-bg: #0b0c0f;
-  --studio-panel: #121419;
-  --studio-elevated: #191c23;
-  --studio-border: rgba(255, 255, 255, 0.08);
-  --studio-border-strong: rgba(255, 255, 255, 0.16);
-  --studio-ink: #f4f4f6;
-  --studio-muted: #9ca3af;
-  --studio-subtle: #6b7280;
-  --studio-accent: #f59e0b;
-  --studio-accent-soft: rgba(245, 158, 11, 0.14);
-  --studio-accent-ink: #0b0c0f;
-  --studio-grid-dot: rgba(255, 255, 255, 0.05);
-  --studio-glow: rgba(245, 158, 11, 0.05);
-  --studio-track: rgba(255, 255, 255, 0.12);
-  --studio-track-hover: rgba(255, 255, 255, 0.2);
+  /* Darkroom Charcoal */
+  --studio-bg: #111113;
+  --studio-panel: rgba(24, 24, 28, 0.84);
+  --studio-elevated: #222227;
+  --studio-border: rgba(255, 255, 255, 0.09);
+  --studio-border-strong: rgba(255, 255, 255, 0.18);
+  --studio-ink: #f4f3ef;
+  --studio-muted: #a1a0a8;
+  --studio-subtle: #6e6d75;
+  --studio-accent: #f06449;
+  --studio-accent-soft: rgba(240, 100, 73, 0.15);
+  --studio-accent-ink: #111113;
+  --studio-grid-dot: rgba(255, 255, 255, 0.06);
+  --studio-track: rgba(255, 255, 255, 0.14);
+  --studio-track-hover: rgba(255, 255, 255, 0.24);
 }
 
 html.theme-switching *,
@@ -55,9 +53,7 @@ html.theme-switching *::after {
     height: 100%;
     background-color: var(--studio-bg);
     color: var(--studio-ink);
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -67,8 +63,8 @@ html.theme-switching *::after {
   }
 
   ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 4px;
+    height: 4px;
   }
 
   ::-webkit-scrollbar-track {
@@ -81,12 +77,12 @@ html.theme-switching *::after {
   }
 }
 
-/* Studio Range Slider */
+/* Precision Range Slider */
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: var(--studio-track);
   border-radius: 9999px;
   outline: none;
@@ -105,18 +101,18 @@ input[type='range']:focus-visible {
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   background: var(--studio-ink);
   cursor: pointer;
-  border: 2px solid var(--studio-panel);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  border: 2px solid var(--studio-bg);
+  box-shadow: 0 1px 3px rgba(17, 17, 19, 0.25);
   transition: transform 140ms var(--ease-out), background-color 140ms var(--ease-out);
 }
 
 input[type='range']::-webkit-slider-thumb:hover {
-  transform: scale(1.14);
+  transform: scale(1.16);
   background: var(--studio-accent);
 }
 
@@ -125,13 +121,13 @@ input[type='range']::-webkit-slider-thumb:active {
 }
 
 input[type='range']::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   background: var(--studio-ink);
   cursor: pointer;
-  border: 2px solid var(--studio-panel);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  border: 2px solid var(--studio-bg);
+  box-shadow: 0 1px 3px rgba(17, 17, 19, 0.25);
   transition: transform 140ms var(--ease-out), background-color 140ms var(--ease-out);
 }
 
@@ -139,13 +135,13 @@ input[type='range']::-moz-range-thumb {
 input[type='color'] {
   -webkit-appearance: none;
   appearance: none;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border: 1px solid var(--studio-border-strong);
-  border-radius: 8px;
-  background: var(--studio-panel);
+  border-radius: 6px;
+  background: var(--studio-elevated);
   cursor: pointer;
-  padding: 3px;
+  padding: 2px;
   transition: border-color 150ms var(--ease-out), transform 120ms var(--ease-out);
 }
 
@@ -163,7 +159,7 @@ input[type='color']::-webkit-color-swatch-wrapper {
 
 input[type='color']::-webkit-color-swatch {
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 input[type='file'] {
@@ -180,7 +176,7 @@ select {
   border: 1px solid var(--studio-border-strong);
   border-radius: 8px;
   background-color: var(--studio-elevated);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8b96' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2388868f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   font-family: 'JetBrains Mono', monospace;
@@ -193,9 +189,9 @@ select {
 
 @media (min-width: 768px) {
   select {
-    min-height: 34px;
-    height: 34px;
-    padding: 0 30px 0 10px;
+    min-height: 32px;
+    height: 32px;
+    padding: 0 28px 0 10px;
     font-size: 11px;
   }
 }

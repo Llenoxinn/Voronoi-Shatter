@@ -217,6 +217,7 @@
       <nav class="hidden md:flex items-center gap-7 text-xs font-medium text-studio-muted">
         <a href="#optics" class="hover:text-studio-ink transition-colors duration-150">Optics</a>
         <a href="#presets" class="hover:text-studio-ink transition-colors duration-150">Presets</a>
+        <a href="#figma-plugin" class="hover:text-studio-ink transition-colors duration-150">Figma Plugin</a>
       </nav>
 
       <div class="flex items-center gap-1.5">
@@ -445,6 +446,59 @@
           </div>
         </button>
       {/each}
+    </div>
+  </section>
+
+  <!-- High-Contrast Figma Plugin Download Section -->
+  <section id="figma-plugin" use:reveal class="max-w-6xl mx-auto px-5 sm:px-8 py-10 md:py-16">
+    <div class="rounded-3xl bg-studio-ink text-studio-bg p-8 sm:p-12 lg:p-14 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+      <div class="lg:col-span-6">
+        <h2 class="font-medium text-3xl sm:text-4xl leading-[1.06] tracking-[-0.03em] text-balance">
+          Figma Plugin
+        </h2>
+        <p class="mt-3 text-sm sm:text-base opacity-80 leading-relaxed max-w-[40ch] text-pretty">
+          Fracture selected frames and layers directly inside Figma with live optical controls and vector export.
+        </p>
+
+        <div class="mt-7">
+          <a
+            href="./voronoi-shatter-figma-plugin.zip"
+            download="voronoi-shatter-figma-plugin.zip"
+            class="inline-flex items-center gap-2.5 h-11 px-6 rounded-full bg-studio-accent text-studio-accent-ink text-sm font-medium hover:opacity-95 active:scale-[0.96] transition-[opacity,transform] duration-150 no-underline"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>Download Figma Plugin</span>
+          </a>
+        </div>
+      </div>
+
+      <ol class="lg:col-span-6 space-y-4">
+        <li class="flex items-start gap-4 p-4 rounded-2xl bg-studio-bg/[0.08] border border-studio-bg/15">
+          <span class="font-mono tabular-nums text-xs font-semibold opacity-70 pt-0.5">01</span>
+          <div>
+            <div class="text-sm font-semibold tracking-tight">Unzip</div>
+            <div class="text-xs opacity-75 mt-0.5">Extract <code class="font-mono">voronoi-shatter-figma-plugin.zip</code> to a local folder.</div>
+          </div>
+        </li>
+        <li class="flex items-start gap-4 p-4 rounded-2xl bg-studio-bg/[0.08] border border-studio-bg/15">
+          <span class="font-mono tabular-nums text-xs font-semibold opacity-70 pt-0.5">02</span>
+          <div>
+            <div class="text-sm font-semibold tracking-tight">Plugins &rarr; Development</div>
+            <div class="text-xs opacity-75 mt-0.5">In Figma, open the menu and go to <span class="font-medium">Plugins &rarr; Development</span>.</div>
+          </div>
+        </li>
+        <li class="flex items-start gap-4 p-4 rounded-2xl bg-studio-bg/[0.08] border border-studio-bg/15">
+          <span class="font-mono tabular-nums text-xs font-semibold opacity-70 pt-0.5">03</span>
+          <div>
+            <div class="text-sm font-semibold tracking-tight">Import plugin from manifest...</div>
+            <div class="text-xs opacity-75 mt-0.5">Select <code class="font-mono">manifest.json</code> inside the unzipped folder.</div>
+          </div>
+        </li>
+      </ol>
     </div>
   </section>
 

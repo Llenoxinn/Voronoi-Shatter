@@ -1,21 +1,43 @@
 import { setContext, getContext } from 'svelte';
 
 const KEY = Symbol('voronoi');
+export const THEME_STORAGE_KEY = 'voronoi-shatter-theme';
+
+function getInitialDark() {
+  if (typeof window === 'undefined') return false;
+  try {
+    const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === 'dark') return true;
+    if (saved === 'light') return false;
+  } catch {
+    // Ignore storage access errors in private or sandboxed contexts.
+  }
+  try {
+    return Boolean(window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+  } catch {
+    return false;
+  }
+}
 
 export function createAppState() {
-  const state = $state({
+  const initialDark = getInitialDark();
+  if (typeof document !== 'undefined') {
+    document.documentElement.classList.toggle('dark', initialDark);
+  }
+
+  const appState = $state({
     srcData: null,
     srcWidth: 0,
     srcHeight: 0,
     hasImage: false,
     processing: false,
-    isDark: false,
+    isDark: initialDark,
     params: {
       cellCount: 80,
       jitter: 75,
-      refraction: 45,
-      bevel: 40,
-      dispersion: 20,
+      refraction: 65,
+      bevel: 55,
+      dispersion: 24,
       borderWidth: 1.5,
       borderColor: '#111113',
       metric: 'euclidean',
@@ -39,8 +61,8 @@ export function createAppState() {
     hasBlend: false,
   });
 
-  setContext(KEY, state);
-  return state;
+  setContext(KEY, appState);
+  return appState;
 }
 
 export function getAppState() {
@@ -48,12 +70,24 @@ export function getAppState() {
 }
 
 export function toggleTheme(appState) {
-  const root = document.documentElement;
-  root.classList.add('theme-switching');
-  appState.isDark = !appState.isDark;
-  root.classList.toggle('dark', appState.isDark);
-  void root.offsetHeight;
-  requestAnimationFrame(() => {
-    root.classList.remove('theme-switching');
-  });
+  const nextDark = !appState.isDark;
+  const root = typeof document !== 'undefined' ? document.documentElement : null;
+
+  if (root) {
+    root.classList.add('theme-switching');
+  }
+  appState.isDark = nextDark;
+  if (root) {
+    root.classList.toggle('dark', nextDark);
+    void root.offsetHeight;
+    requestAnimationFrame(() => {
+      root.classList.remove('theme-switching');
+    });
+  }
+
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextDark ? 'dark' : 'light');
+  } catch {
+    // Ignore storage access errors in private or sandboxed contexts.
+  }
 }

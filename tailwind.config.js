@@ -1,4 +1,7 @@
 export default {
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   content: ['./index.html', './src/**/*.{svelte,js}'],
   darkMode: 'class',
   theme: {
@@ -21,7 +24,7 @@ export default {
       fontFamily: {
         sans: ['Geist', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['Geist Mono', 'ui-monospace', 'monospace'],
-        display: ['Geist', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Outfit', 'Geist', 'system-ui', '-apple-system', 'sans-serif'],
       },
     },
   },

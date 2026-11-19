@@ -8,6 +8,7 @@
   let {
     presets = [],
     activePreset = null,
+    isEmbed = false,
     comparing = $bindable(false),
     onPreset,
     onGeoChange,
@@ -21,6 +22,26 @@
 
   const appState = getAppState();
   let blendFileInput = $state();
+
+  const exportFormats = $derived(
+    isEmbed
+      ? [
+          { id: 'png', label: 'PNG' },
+          { id: 'svg', label: 'SVG' },
+        ]
+      : [
+          { id: 'png', label: 'PNG' },
+          { id: 'jpeg', label: 'JPEG' },
+          { id: 'webp', label: 'WebP' },
+          { id: 'svg', label: 'SVG' },
+        ]
+  );
+
+  $effect(() => {
+    if (isEmbed && appState.params.exportFormat !== 'png' && appState.params.exportFormat !== 'svg') {
+      appState.params.exportFormat = 'png';
+    }
+  });
 
   function handleBlendFileChange(e) {
     if (e.target.files.length > 0) {
@@ -51,7 +72,8 @@
         onpointerup={() => (comparing = false)}
         onpointerleave={() => (comparing = false)}
         onpointercancel={() => (comparing = false)}
-        class="h-9 px-3 rounded-lg text-xs font-medium border border-studio-border bg-studio-panel text-studio-ink active:scale-[0.96]"
+        aria-pressed={comparing}
+        class="inline-flex items-center justify-center min-h-[44px] px-3.5 rounded-lg text-xs font-medium whitespace-nowrap border border-studio-border bg-studio-panel text-studio-ink motion-safe:enabled:active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60"
       >
         Compare
       </button>
@@ -59,7 +81,7 @@
         type="button"
         onclick={onRegenerate}
         disabled={appState.processing}
-        class="h-9 px-3.5 rounded-lg text-xs font-medium bg-studio-accent text-studio-accent-ink active:scale-[0.96] disabled:opacity-35"
+        class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg text-xs font-medium whitespace-nowrap bg-studio-accent text-studio-accent-ink motion-safe:enabled:active:scale-[0.96] disabled:opacity-35 transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-studio-panel"
       >
         Reseed
       </button>
@@ -74,7 +96,7 @@
             type="button"
             onclick={onRegenerate}
             disabled={appState.processing}
-            class="hidden md:inline-flex items-center text-[11px] font-medium text-studio-accent hover:opacity-80 disabled:opacity-35"
+            class="hidden md:inline-flex items-center text-[0.6875rem] font-medium text-studio-accent hover:opacity-80 disabled:opacity-35 motion-safe:enabled:active:scale-[0.96] transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 rounded"
           >
             Reseed
           </button>
@@ -86,8 +108,9 @@
             <button
               type="button"
               onclick={() => onPreset?.(preset)}
-              class="min-h-[36px] md:min-h-0 px-2 py-1.5 rounded-lg text-xs font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {active
-                ? 'bg-studio-accent text-studio-accent-ink border-studio-accent'
+              aria-pressed={active}
+              class="min-h-[44px] md:min-h-0 px-2 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap border motion-safe:enabled:active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {active
+                ? 'bg-studio-accent text-studio-accent-ink border-studio-accent focus-visible:ring-offset-2 focus-visible:ring-offset-studio-panel'
                 : 'bg-studio-elevated/60 text-studio-muted border-studio-border hover:text-studio-ink hover:border-studio-border-strong'}"
             >
               {preset.name}
@@ -104,7 +127,7 @@
             <button
               type="button"
               onclick={onClearImpact}
-              class="text-[11px] font-medium text-studio-accent hover:underline"
+              class="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 -my-2 md:my-0 rounded text-[0.6875rem] font-medium whitespace-nowrap text-studio-accent hover:underline motion-safe:enabled:active:scale-[0.96] transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60"
             >
               Reset grid
             </button>
@@ -114,10 +137,10 @@
         <ControlSlider label="Cells" bind:value={appState.params.cellCount} min={5} max={500} step={1} onchange={onGeoChange} />
         <ControlSlider label="Jitter" bind:value={appState.params.jitter} min={0} max={100} step={1} unit="%" onchange={onGeoChange} />
 
-        <div class="grid grid-cols-[1fr_auto] gap-2 items-end pt-1">
-          <div>
+        <div class="grid grid-cols-1 min-[360px]:grid-cols-[1fr_auto] gap-2 items-end pt-1">
+          <div class="min-w-0">
             <span class="block text-xs font-medium text-studio-muted mb-1.5">Metric</span>
-            <div class="grid grid-cols-3 gap-1 p-1 rounded-lg bg-studio-elevated border border-studio-border" role="group" aria-label="Distance metric">
+            <div class="grid grid-cols-3 gap-1 p-1 rounded-[10px] bg-studio-elevated border border-studio-border" role="group" aria-label="Distance metric">
               {#each [
                 { id: 'euclidean', label: 'Crystal' },
                 { id: 'manhattan', label: 'Diamond' },
@@ -130,7 +153,8 @@
                     appState.params.metric = m.id;
                     onGeoChange();
                   }}
-                  class="h-8 md:h-7 rounded-md text-[11px] font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
+                  aria-pressed={active}
+                  class="min-h-[44px] md:min-h-0 md:h-7 rounded-md text-[0.6875rem] font-medium whitespace-nowrap motion-safe:enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {active
                     ? 'bg-studio-panel text-studio-ink shadow-sm'
                     : 'text-studio-muted hover:text-studio-ink'}"
                 >
@@ -140,7 +164,7 @@
             </div>
           </div>
 
-          <div class="flex flex-col w-24">
+          <div class="flex flex-col min-[360px]:w-24">
             <label for={seedId} class="block text-xs font-medium text-studio-muted mb-1.5">Seed</label>
             <input
               id={seedId}
@@ -151,7 +175,7 @@
               inputmode="numeric"
               value={appState.params.seed}
               onchange={handleSeedChange}
-              class="w-full h-10 md:h-[38px] px-2 rounded-lg bg-studio-elevated border border-studio-border focus:border-studio-accent focus:outline-none font-mono text-xs font-medium text-studio-ink tabular-nums dark:[color-scheme:dark] transition-colors duration-150"
+              class="w-full min-h-[44px] md:min-h-0 md:h-[38px] px-2 rounded-lg bg-studio-elevated border border-studio-border focus:border-studio-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 font-mono text-base md:text-xs font-medium text-studio-ink tabular-nums dark:[color-scheme:dark] transition-colors duration-150 ease-[var(--ease-out)]"
             />
           </div>
         </div>
@@ -174,7 +198,7 @@
               onBorderChange();
             }}
             aria-pressed={appState.params.transparentBorder}
-            class="h-9 md:h-8 px-2.5 rounded-lg text-xs font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {appState.params.transparentBorder
+            class="min-h-[44px] md:min-h-0 md:h-8 px-2.5 rounded-lg text-xs font-medium whitespace-nowrap border motion-safe:enabled:active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {appState.params.transparentBorder
               ? 'bg-studio-ink text-studio-bg border-studio-ink'
               : 'bg-studio-elevated/60 text-studio-muted border-studio-border hover:text-studio-ink'}"
           >
@@ -187,7 +211,7 @@
               onBorderChange();
             }}
             aria-pressed={appState.params.wireframe}
-            class="h-9 md:h-8 px-2.5 rounded-lg text-xs font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {appState.params.wireframe
+            class="min-h-[44px] md:min-h-0 md:h-8 px-2.5 rounded-lg text-xs font-medium whitespace-nowrap border motion-safe:enabled:active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {appState.params.wireframe
               ? 'bg-studio-ink text-studio-bg border-studio-ink'
               : 'bg-studio-elevated/60 text-studio-muted border-studio-border hover:text-studio-ink'}"
           >
@@ -206,7 +230,7 @@
             <button
               type="button"
               onclick={onBlendRemove}
-              class="text-xs font-medium text-studio-accent hover:underline"
+              class="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 -my-2 md:my-0 rounded text-xs font-medium whitespace-nowrap text-studio-accent hover:underline motion-safe:enabled:active:scale-[0.96] transition-[opacity,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60"
             >
               Remove
             </button>
@@ -214,7 +238,7 @@
         </div>
 
         {#if appState.hasBlend}
-          <div class="grid grid-cols-5 gap-1">
+          <div class="grid grid-cols-5 gap-1" role="group" aria-label="Blend mode">
             {#each [
               { id: 'normal', label: 'Norm' },
               { id: 'multiply', label: 'Mult' },
@@ -229,7 +253,8 @@
                   appState.params.blendMode = mode.id;
                   onBlendChange();
                 }}
-                class="h-8 md:h-7 rounded-md text-[11px] font-medium border active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 {active
+                aria-pressed={active}
+                class="min-h-[44px] md:min-h-0 md:h-7 rounded-md text-[0.6875rem] font-medium whitespace-nowrap border motion-safe:enabled:active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {active
                   ? 'bg-studio-ink text-studio-bg border-studio-ink'
                   : 'bg-studio-elevated/60 text-studio-muted border-studio-border hover:text-studio-ink'}"
               >
@@ -242,7 +267,7 @@
           <button
             type="button"
             onclick={() => blendFileInput.click()}
-            class="w-full h-10 md:h-9 rounded-lg text-xs font-medium text-studio-muted border border-dashed border-studio-border-strong hover:border-studio-accent/60 hover:text-studio-ink active:scale-[0.96] transition-[border-color,color,transform] duration-150"
+            class="w-full min-h-[44px] md:min-h-0 md:h-9 rounded-lg text-xs font-medium text-studio-muted border border-dashed border-studio-border-strong hover:border-studio-accent/60 hover:text-studio-ink motion-safe:enabled:active:scale-[0.96] transition-[border-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60"
           >
             + Add blend image
           </button>
@@ -254,25 +279,25 @@
       <section class="px-4 py-3.5 space-y-3">
         <div class="flex items-center justify-between">
           <h2 class="text-xs font-semibold text-studio-ink">Export Format</h2>
-          {#if appState.params.exportFormat !== 'png' && appState.params.exportFormat !== 'svg'}
+          {#if !isEmbed && appState.params.exportFormat !== 'png' && appState.params.exportFormat !== 'svg'}
             <span class="font-mono text-xs font-semibold text-studio-ink tabular-nums">
               {appState.params.exportQuality}%
             </span>
           {/if}
         </div>
 
-        <div class="grid grid-cols-4 gap-1 p-1 rounded-lg bg-studio-elevated border border-studio-border" role="group" aria-label="Export format">
-          {#each [
-            { id: 'png', label: 'PNG' },
-            { id: 'jpeg', label: 'JPEG' },
-            { id: 'webp', label: 'WebP' },
-            { id: 'svg', label: 'SVG' },
-          ] as fmt}
+        <div
+          class="grid {isEmbed ? 'grid-cols-2' : 'grid-cols-4'} gap-1 p-1 rounded-[10px] bg-studio-elevated border border-studio-border"
+          role="group"
+          aria-label="Export format"
+        >
+          {#each exportFormats as fmt}
             {@const active = appState.params.exportFormat === fmt.id}
             <button
               type="button"
               onclick={() => (appState.params.exportFormat = fmt.id)}
-              class="h-9 md:h-7 rounded-md text-xs font-medium active:scale-[0.96] transition-[background-color,color,transform] duration-150 {active
+              aria-pressed={active}
+              class="min-h-[44px] md:min-h-0 md:h-7 rounded-md text-xs font-medium whitespace-nowrap motion-safe:enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {active
                 ? 'bg-studio-panel text-studio-ink shadow-sm'
                 : 'text-studio-muted hover:text-studio-ink'}"
             >
@@ -281,7 +306,7 @@
           {/each}
         </div>
 
-        {#if appState.params.exportFormat !== 'png' && appState.params.exportFormat !== 'svg'}
+        {#if !isEmbed && appState.params.exportFormat !== 'png' && appState.params.exportFormat !== 'svg'}
           <ControlSlider label="Quality" bind:value={appState.params.exportQuality} min={10} max={100} step={1} unit="%" />
         {/if}
       </section>

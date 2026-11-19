@@ -476,6 +476,46 @@
                 </div>
               </div>
 
+              <!-- Mobile/Tablet quick tool toggles (mirrors left ToolRail) -->
+              <div class="flex lg:hidden items-center gap-1.5 pt-2 border-t border-studio-border">
+                <button
+                  type="button"
+                  onclick={() => {
+                    heroSeed = (heroSeed + 7919) % 999983;
+                    renderHero();
+                  }}
+                  class="flex-1 h-8 rounded-md text-[11px] font-medium bg-studio-elevated text-studio-ink active:scale-[0.96]"
+                >
+                  Reseed
+                </button>
+                <button
+                  type="button"
+                  onclick={() => {
+                    heroCutout = !heroCutout;
+                    renderHero();
+                  }}
+                  aria-pressed={heroCutout}
+                  class="flex-1 h-8 rounded-md text-[11px] font-medium border active:scale-[0.96] {heroCutout
+                    ? 'bg-studio-ink text-studio-bg border-studio-ink'
+                    : 'bg-studio-elevated/60 text-studio-muted border-studio-border'}"
+                >
+                  Cutout
+                </button>
+                <button
+                  type="button"
+                  onclick={() => {
+                    heroWireframe = !heroWireframe;
+                    renderHero();
+                  }}
+                  aria-pressed={heroWireframe}
+                  class="flex-1 h-8 rounded-md text-[11px] font-medium border active:scale-[0.96] {heroWireframe
+                    ? 'bg-studio-ink text-studio-bg border-studio-ink'
+                    : 'bg-studio-elevated/60 text-studio-muted border-studio-border'}"
+                >
+                  Wireframe
+                </button>
+              </div>
+
               <div class="pt-3 border-t border-studio-border space-y-2.5">
                 <label class="block space-y-1">
                   <div class="flex items-center justify-between text-[11px]">

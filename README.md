@@ -17,14 +17,11 @@ Per-shard refraction, directional facet bevels, RGB chromatic dispersion, and ra
 
 ## Capabilities
 
-- **Interactive Landing Demo** — Hero preview ([`src/components/LandingPage.svelte`](src/components/LandingPage.svelte)) with clickable fracture origin, live `Crystal`/`Diamond`/`Grid` metrics, `Wireframe` toggle, `Cells` slider (`24`–`160`), and instant `Export SVG` download.
-- **Optical Shard Refraction & RGB Dispersion** — Displaces sampled source pixels along a deterministic per-cell vector and splits red/blue channels for prism edges ([`src/lib/voronoi.js`](src/lib/voronoi.js)).
-- **Shard Distance Metrics & Numeric Seed** — Switch between `Crystal` (Euclidean), `Diamond` (Manhattan), and `Grid` (Chebyshev) cell tessellation, and enter exact seeds (`1`–`1e9`) via the numeric `Seed` input or randomize with `Reseed` (`Space`).
-- **Interactive Impact Epicenter** — Click anywhere on the canvas to cluster shards radially around a focal point, or reset back to a uniform jittered grid.
-- **3D Facet Bevels, Cutout Gaps, Wireframe & Stage Tools** — Top-left key-light rim highlights paired with `smoothstep` edge falloff, transparent cutout borders, wireframe-only output, an automatic/toggleable alpha checkerboard backdrop, and `Fit / 100%` canvas zoom ([`src/components/CanvasArea.svelte`](src/components/CanvasArea.svelte)).
-- **Cached Worker Pipeline** — Geometry and distance fields (`nearestSeed`, `dist1Sq`, `dist2Sq`, `avgColors`) stay cached in [`src/context.svelte.js`](src/context.svelte.js) and [`src/lib/worker.js`](src/lib/worker.js) so appearance sliders update without recomputing Voronoi cells.
-- **Vector SVG, Blend & Clipboard Copy** — Export editable clipped-polygon `SVG` vectors ([`src/lib/svg-export.js`](src/lib/svg-export.js)), raster `PNG`/`JPEG`/`WebP`, composite blend layers, or copy PNG straight to the clipboard.
-- **1-Click Figma Plugin ZIP & Bridge** — Download `voronoi-shatter-figma-plugin.zip` directly from the landing page (or build with `npm run build:plugin`), connecting [`figma-plugin/ui.html`](figma-plugin/ui.html) to the `?embed=1` Studio via [`src/lib/plugin-api.js`](src/lib/plugin-api.js) to insert `SVG` or `PNG` layers into Figma ([`figma-plugin/`](figma-plugin/README.md)).
+- **Interactive Landing Demo** — Editorial landing page ([`src/components/LandingPage.svelte`](src/components/LandingPage.svelte)) with an `Outfit` (`579`) Voronoi-faceted display showcase, cached hero geometry/appearance rendering (`Cells` `24`–`160`, `Refraction`, `Bevel`, `Dispersion`, `Crystal`/`Diamond`/`Grid` metrics, clickable fracture origin, instant `Export SVG`), desktop & mobile tool parity (`Impact`, `Reseed`, `Cutout`, `Wireframe`), full demo-to-studio handoff, and a 6-tab interactive Preset showcase with live specimen previews.
+- **Spatial-Grid Voronoi Engine & Blend Modes** — Spatial-grid accelerated (`n >= 24`) tessellation across `Crystal` (Euclidean), `Diamond` (Manhattan), and `Grid` (Chebyshev) metrics ([`src/lib/voronoi.js`](src/lib/voronoi.js)), deterministic Mulberry32 seeds (`1`–`1e9`), radial impact epicenter clustering, per-shard optical refraction, directional 3D facet bevels with `smoothstep` edge falloff, RGB chromatic dispersion, and 5 blend modes (`normal`, `multiply`, `screen`, `overlay`, fixed `soft-light`) with aspect-cover compositing.
+- **Vector SVG & Raster Export** — Editable polygon `SVG` export ([`src/lib/svg-export.js`](src/lib/svg-export.js)) supporting all 3 distance metrics (`euclidean` half-plane clipping, `manhattan`/`chebyshev` marching-squares contours), geometric `transparentBorder` cutout gaps, subtle facet bevel tinting, and sanitized attributes — alongside `PNG`/`JPEG`/`WebP` export and clipboard `Copy PNG`.
+- **Studio Workflow & Recovery** — Cached Web Worker pipeline ([`src/lib/engine.js`](src/lib/engine.js), [`src/lib/worker.js`](src/lib/worker.js)) with automatic worker error recovery and accessible status notices, 50-step Undo/Redo history ([`src/lib/history.js`](src/lib/history.js)), clipboard image paste (`Ctrl+V` / `Cmd+V`), drag-and-drop replace, `Fit / 100%` zoom with toggleable `16px` alpha checkerboard ([`src/components/CanvasArea.svelte`](src/components/CanvasArea.svelte)), and persistent Gallery Stone / Darkroom theming (`localStorage` + `prefers-color-scheme` via [`src/context.svelte.js`](src/context.svelte.js) and [`index.html`](index.html)).
+- **Figma Plugin & 1-Click ZIP** — Download `voronoi-shatter-figma-plugin.zip` from the landing page (or build with `npm run build:plugin`) to connect [`figma-plugin/ui.html`](figma-plugin/ui.html) to `?embed=1` Studio via [`src/lib/plugin-api.js`](src/lib/plugin-api.js): `1×`/`2×` Retina pull scale, live selection status via `selectionchange`, smart layer placement (`24px` right of source layer or viewport center), persisted custom hosted Studio URLs via `figma.clientStorage`, and `voronoi:export-error` notifications ([`figma-plugin/README.md`](figma-plugin/README.md)).
 
 ---
 
@@ -32,33 +29,35 @@ Per-shard refraction, directional facet bevels, RGB chromatic dispersion, and ra
 
 | Stack | Technology | Role |
 | --- | --- | --- |
-| ![Svelte](https://img.shields.io/badge/Svelte_5-FF3E00?style=flat-square&logo=svelte&logoColor=white) | **Svelte 5** | Runes-based reactive UI (`$state`, `$derived`, `$props`, `$bindable`, `$props.id()`) |
+| ![Svelte](https://img.shields.io/badge/Svelte_5-FF3E00?style=flat-square&logo=svelte&logoColor=white) | **Svelte 5** | Runes-based reactive UI (`$state`, `$derived`, `$props`, `$bindable`, `$props.id()`, `$effect`) |
 | ![Vite](https://img.shields.io/badge/Vite_6-646CFF?style=flat-square&logo=vite&logoColor=white) | **Vite 6** | Dev server, HMR, and production bundling with module Web Workers |
-| ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) | **Tailwind CSS 3** | Tokenized Gallery Stone & Darkroom studio theme utilities |
-| ![HTML5](https://img.shields.io/badge/Canvas_2D-E34F26?style=flat-square&logo=html5&logoColor=white) | **HTML5 Canvas 2D** | Offscreen image sampling, crossfade transitions, and export encoding |
-| ![Web Workers](https://img.shields.io/badge/Web_Workers-111113?style=flat-square&logo=javascript&logoColor=F7DF1E) | **Web Workers** | Non-blocking Voronoi computation using transferable `ArrayBuffer`s |
+| ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) | **Tailwind CSS 3** | Tokenized Gallery Stone & Darkroom studio theme (`Outfit`, `Geist`, `Geist Mono`) |
+| ![HTML5](https://img.shields.io/badge/Canvas_2D-E34F26?style=flat-square&logo=html5&logoColor=white) | **HTML5 Canvas 2D** | Offscreen image sampling, reduced-motion-aware crossfades, and export encoding |
+| ![Web Workers](https://img.shields.io/badge/Web_Workers-111113?style=flat-square&logo=javascript&logoColor=F7DF1E) | **Web Workers** | Non-blocking Voronoi computation using transferable `ArrayBuffer`s with crash recovery |
 
 ---
 
 ## Presets & Shortcuts
 
-| Preset | Profile | Cells | Jitter | Refraction | Bevel | Border |
-| --- | --- | --- | --- | --- | --- | --- |
-| **Prism** | Refracted shards | `80` | `75%` | `65%` | `55%` | `1.5px` |
-| **Glass** | Stained bevels | `120` | `45%` | `35%` | `70%` | `3px` |
-| **Mosaic** | Flat tiles | `90` | `60%` | `0%` | `15%` | `1.5px` |
-| **Low Poly** | Clean facets | `220` | `90%` | `0%` | `35%` | `0px` |
-| **Cracked** | Fractured lens | `55` | `80%` | `85%` | `60%` | `2.5px` |
-| **Fine** | Micro crystal | `400` | `55%` | `40%` | `30%` | `0.5px` |
+| Preset | Profile | Cells | Jitter | Refraction | Bevel | Dispersion | Border |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **Prism** | Refracted shards | `80` | `75%` | `65%` | `55%` | `24%` | `1.5px` |
+| **Glass** | Stained bevels | `120` | `45%` | `35%` | `70%` | `15%` | `3px` |
+| **Mosaic** | Flat tiles | `90` | `60%` | `0%` | `15%` | `0%` | `1.5px` |
+| **Low Poly** | Clean facets | `220` | `90%` | `0%` | `35%` | `0%` | `0px` |
+| **Cracked** | Fractured lens | `55` | `80%` | `85%` | `60%` | `35%` | `2.5px` |
+| **Fine** | Micro crystal | `400` | `55%` | `40%` | `30%` | `12%` | `0.5px` |
 
 | Shortcut | Action |
 | --- | --- |
 | `Click` on canvas | Set radial shatter impact epicenter |
 | `Space` | Reseed Voronoi cells |
 | `C` *(hold)* | Compare original image |
+| `Ctrl+Z` / `Cmd+Z` | Undo parameter change |
+| `Ctrl+Shift+Z` / `Cmd+Shift+Z` / `Ctrl+Y` | Redo parameter change |
 | `Ctrl+S` / `Cmd+S` | Export current canvas |
-| `Ctrl+Z` / `Cmd+Z` | Reset geometry and shatter parameters |
-| `Escape` | Close active control tray |
+| `Ctrl+V` / `Cmd+V` | Paste image from clipboard |
+| `Escape` | Blur focused inspector control or clear radial impact |
 
 ---
 
@@ -71,7 +70,7 @@ npm install
 # Start development server
 npm run dev
 
-# Run Voronoi & SVG unit tests
+# Run unit tests (Voronoi, SVG, history, plugin bridge & packager)
 npm test
 
 # Package Figma plugin ZIP (also runs automatically before build)
@@ -88,10 +87,10 @@ npm run preview
 
 ```text
 figma-plugin/
-├── manifest.json             # Figma Desktop plugin manifest
-├── code.js                   # Figma sandbox script (SVG vector & PNG image insertion)
-├── ui.html                   # Studio iframe bridge (?embed=1) & Figma insert toolbar
-└── README.md                 # Figma Desktop install & bridge guide
+├── manifest.json             # Figma Desktop plugin manifest (local & hosted Studio domains)
+├── code.js                   # Figma sandbox (selectionchange, 1×–4× export, smart placement, clientStorage)
+├── ui.html                   # Studio iframe bridge (?embed=1), 1×/2× pull & persisted URL settings
+└── README.md                 # Figma Desktop install & bridge protocol guide
 public/
 ├── favicon.svg               # Voronoi prism SVG web icon
 └── voronoi-shatter-figma-plugin.zip # Prebuilt 1-click downloadable Figma plugin archive
@@ -100,11 +99,11 @@ scripts/
 src/
 ├── main.js                   # Application entry point
 ├── app.css                   # 3-layer CSS tokens (primitive/semantic/component) & reduced-motion
-├── context.svelte.js         # Shared Svelte 5 $state context & toggleTheme()
+├── context.svelte.js         # Shared Svelte 5 $state context & persisted toggleTheme()
 ├── components/
-│   ├── App.svelte            # View switching (landing/studio), embed bridge, worker orchestration
-│   ├── LandingPage.svelte    # Landing page with embedded 4-zone Pro Studio hero demo & plugin ZIP download
-│   ├── Header.svelte         # Top workstation bar (Open, Sample, Reset, spec pill, Copy PNG, Export/Insert)
+│   ├── App.svelte            # View switching, allowlisted embed bridge, undo/redo, worker orchestration
+│   ├── LandingPage.svelte    # Landing page with cached hero demo, 6-tab preset showcase & plugin download
+│   ├── Header.svelte         # Workstation bar (Open, Sample, Undo/Redo, Reset, spec pill, Copy PNG, Export/Insert)
 │   ├── ThemeToggle.svelte    # Shared Gallery Stone / Darkroom theme switch
 │   ├── ToolRail.svelte       # Left vertical workstation tool dock (Impact, Compare, Reseed, Cutout, Wireframe)
 │   ├── CanvasArea.svelte     # Matte pasteboard viewport, alpha checkerboard, Fit/100% zoom, impact marker, drag-replace
@@ -114,12 +113,16 @@ src/
 │   ├── ControlSlider.svelte  # Labeled range slider with $props.id(), progress track, and tabular-nums
 │   └── ColorPicker.svelte    # Border color swatch, hex readout, and quick swatches
 └── lib/
-    ├── engine.js             # Web Worker lifecycle and transferable buffer messaging
+    ├── engine.js             # Web Worker lifecycle, error recovery, and transferable buffer messaging
     ├── worker.js             # Worker message handler ('full' and 'render' passes)
-    ├── voronoi.js            # Mulberry32 PRNG, radial/grid seeds, metrics, refraction, bevels, dispersion
-    ├── svg-export.js         # Sutherland-Hodgman clipped Voronoi SVG vector generator
-    ├── plugin-api.js         # ?embed / postMessage bridge for iframe & Figma plugin hosts
+    ├── voronoi.js            # Mulberry32 PRNG, spatial-grid Voronoi, metrics, optics & blend modes
+    ├── history.js            # Bounded undo/redo parameter snapshot stack
+    ├── svg-export.js         # Euclidean & non-Euclidean SVG generator with cutout insets & bevel tinting
+    ├── plugin-api.js         # ?embed / postMessage bridge with prototype-pollution filtering
     └── canvas-utils.js       # Canvas snapshot helper for crossfade transitions
 tests/
-└── voronoi.test.mjs          # node:test unit suite for seeds, metrics, optics, and SVG export
+├── voronoi.test.mjs          # Unit tests for seeds, spatial grid, metrics, optics, blend & SVG export
+├── history.test.mjs          # Unit tests for bounded undo/redo history stack & snapshot equality
+├── plugin-api.test.mjs       # Unit tests for embed mode detection & sanitized postMessage bridge
+└── build-plugin.test.mjs     # Unit tests for figma-plugin ZIP packager
 ```

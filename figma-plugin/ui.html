@@ -173,6 +173,7 @@
         <span id="statusText" class="status-text">Connecting to Voronoi Shatter studio…</span>
       </div>
       <div class="actions">
+        <button id="pullBtn" type="button" disabled>Pull Selection</button>
         <button id="exportPngBtn" type="button" disabled>Insert PNG</button>
         <button id="exportSvgBtn" type="button" class="primary" disabled>Insert SVG</button>
       </div>
@@ -210,6 +211,7 @@
         const frame = document.getElementById('studioFrame');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
+        const pullBtn = document.getElementById('pullBtn');
         const exportSvgBtn = document.getElementById('exportSvgBtn');
         const exportPngBtn = document.getElementById('exportPngBtn');
         const fallback = document.getElementById('fallback');
@@ -223,6 +225,7 @@
           studioReady = ready;
           statusDot.classList.toggle('ready', ready);
           statusText.textContent = label;
+          pullBtn.disabled = !ready;
           exportSvgBtn.disabled = !ready;
           exportPngBtn.disabled = !ready;
           if (ready) {
@@ -256,6 +259,10 @@
           frame.contentWindow.postMessage(message, '*');
         }
 
+        pullBtn.addEventListener('click', () => {
+          postToFigma({ type: 'request-selection', silent: false });
+        });
+
         exportSvgBtn.addEventListener('click', () => {
           postToStudio({ type: 'voronoi:export', format: 'svg' });
         });
@@ -276,7 +283,18 @@
 
           // Messages from Figma plugin main thread (code.js)
           if (data.pluginMessage && typeof data.pluginMessage === 'object') {
-            postToStudio(data.pluginMessage);
+            const pm = data.pluginMessage;
+            if (pm.type === 'selection-bytes' && pm.bytes) {
+              const blob = new Blob([new Uint8Array(pm.bytes)], { type: 'image/png' });
+              const reader = new FileReader();
+              reader.onload = () => {
+                postToStudio({ type: 'voronoi:load-image', dataUrl: reader.result });
+                statusText.textContent = 'Loaded: ' + (pm.name || 'Selection');
+              };
+              reader.readAsDataURL(blob);
+              return;
+            }
+            postToStudio(pm);
             return;
           }
 
@@ -285,6 +303,7 @@
 
           if (data.type === 'voronoi:ready') {
             setReady(true, 'Studio connected');
+            postToFigma({ type: 'request-selection', silent: true });
             return;
           }
 

@@ -9,8 +9,35 @@ function placeAtViewportCenter(node) {
   figma.viewport.scrollAndZoomIntoView([node]);
 }
 
-figma.ui.onmessage = (msg) => {
+async function sendSelectionToUI(silent = false) {
+  const node = figma.currentPage.selection[0];
+  if (!node) {
+    if (!silent) figma.notify('Select a layer or frame in Figma first.');
+    return;
+  }
+
+  try {
+    const bytes = await node.exportAsync({
+      format: 'PNG',
+      constraint: { type: 'SCALE', value: 1 },
+    });
+    figma.ui.postMessage({
+      type: 'selection-bytes',
+      bytes: Array.from(bytes),
+      name: node.name || 'Selection',
+    });
+  } catch (err) {
+    if (!silent) figma.notify('Unable to export selected layer.');
+  }
+}
+
+figma.ui.onmessage = async (msg) => {
   if (!msg || typeof msg !== 'object') return;
+
+  if (msg.type === 'request-selection') {
+    await sendSelectionToUI(Boolean(msg.silent));
+    return;
+  }
 
   if (msg.type === 'insert-svg' && typeof msg.svg === 'string') {
     const node = figma.createNodeFromSvg(msg.svg);

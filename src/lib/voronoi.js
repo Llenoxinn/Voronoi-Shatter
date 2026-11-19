@@ -58,53 +58,262 @@ export function generateSeeds(w, h, count, jitter, seed = 1, impact = null) {
 
 export function computeVoronoi(pixels, w, h, seeds, metric = 'euclidean') {
   const n = seeds.length;
-  const numPixels = w * h;
+  const numPixels = w > 0 && h > 0 ? w * h : 0;
   const nearestSeed = new Int32Array(numPixels);
   const dist1Sq = new Float32Array(numPixels);
   const dist2Sq = new Float32Array(numPixels);
+
+  if (n === 0 || numPixels === 0) {
+    nearestSeed.fill(-1);
+    dist1Sq.fill(Infinity);
+    dist2Sq.fill(Infinity);
+    return {
+      nearestSeed,
+      dist1Sq,
+      dist2Sq,
+      avgColors: new Uint8ClampedArray(n * 4),
+    };
+  }
+
   const cellSumR = new Float64Array(n);
   const cellSumG = new Float64Array(n);
   const cellSumB = new Float64Array(n);
   const cellCounts = new Int32Array(n);
   const metricMode = metric === 'manhattan' ? 1 : metric === 'chebyshev' ? 2 : 0;
 
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      let min1 = Infinity;
-      let min2 = Infinity;
-      let minIdx = -1;
+  if (n >= 24 && w > 0 && h > 0) {
+    const cs = Math.max(8, Math.sqrt((w * h) / n));
+    const gridW = Math.ceil(w / cs);
+    const gridH = Math.ceil(h / cs);
+    const gridCount = gridW * gridH;
 
-      for (let s = 0; s < n; s++) {
-        const dx = x - seeds[s].x;
-        const dy = y - seeds[s].y;
-        let d;
-        if (metricMode === 1) {
-          d = Math.abs(dx) + Math.abs(dy);
-        } else if (metricMode === 2) {
-          d = Math.max(Math.abs(dx), Math.abs(dy));
-        } else {
-          d = dx * dx + dy * dy;
+    const bucketCounts = new Int32Array(gridCount);
+    const seedBucket = new Int32Array(n);
+    const seedX = new Float64Array(n);
+    const seedY = new Float64Array(n);
+
+    for (let s = 0; s < n; s++) {
+      const sx = seeds[s].x;
+      const sy = seeds[s].y;
+      seedX[s] = sx;
+      seedY[s] = sy;
+      const bx = Math.max(0, Math.min(gridW - 1, Math.floor(sx / cs)));
+      const by = Math.max(0, Math.min(gridH - 1, Math.floor(sy / cs)));
+      const bi = by * gridW + bx;
+      seedBucket[s] = bi;
+      bucketCounts[bi]++;
+    }
+
+    const bucketOffsets = new Int32Array(gridCount + 1);
+    for (let i = 0; i < gridCount; i++) {
+      bucketOffsets[i + 1] = bucketOffsets[i] + bucketCounts[i];
+    }
+
+    const bucketSeeds = new Int32Array(n);
+    const writePos = new Int32Array(bucketOffsets.subarray(0, gridCount));
+    for (let s = 0; s < n; s++) {
+      const bi = seedBucket[s];
+      bucketSeeds[writePos[bi]++] = s;
+    }
+
+    const maxSpans = 2 + 2 * gridH;
+    const spanStart = new Int32Array(maxSpans);
+    const spanEnd = new Int32Array(maxSpans);
+
+    for (let y = 0; y < h; y++) {
+      const rowOffset = y * w;
+      const gy = Math.min(gridH - 1, Math.floor(y / cs));
+
+      for (let x = 0; x < w; x++) {
+        const gx = Math.min(gridW - 1, Math.floor(x / cs));
+        let min1 = Infinity;
+        let min2 = Infinity;
+        let minIdx = -1;
+
+        for (let r = 0; ; r++) {
+          let spanCount = 0;
+
+          if (r === 0) {
+            const bi = gy * gridW + gx;
+            const s0 = bucketOffsets[bi];
+            const e0 = bucketOffsets[bi + 1];
+            if (s0 < e0) {
+              spanStart[0] = s0;
+              spanEnd[0] = e0;
+              spanCount = 1;
+            }
+          } else {
+            const hasLeft = gx - r >= 0;
+            const hasRight = gx + r < gridW;
+            const hasTop = gy - r >= 0;
+            const hasBottom = gy + r < gridH;
+
+            if (!hasLeft && !hasRight && !hasTop && !hasBottom) break;
+
+            if (min2 < Infinity) {
+              let minBound = Infinity;
+              if (hasLeft) {
+                const bd = x - (gx - r + 1) * cs;
+                if (bd < minBound) minBound = bd;
+              }
+              if (hasRight) {
+                const bd = (gx + r) * cs - x;
+                if (bd < minBound) minBound = bd;
+              }
+              if (hasTop) {
+                const bd = y - (gy - r + 1) * cs;
+                if (bd < minBound) minBound = bd;
+              }
+              if (hasBottom) {
+                const bd = (gy + r) * cs - y;
+                if (bd < minBound) minBound = bd;
+              }
+              const safeBound = minBound - 1e-6;
+              if (safeBound > 0) {
+                if (metricMode === 0 ? safeBound * safeBound > min2 : safeBound > min2) {
+                  break;
+                }
+              }
+            }
+
+            const xMin = hasLeft ? gx - r : 0;
+            const xMax = hasRight ? gx + r : gridW - 1;
+
+            if (hasTop) {
+              const rowBase = (gy - r) * gridW;
+              const s0 = bucketOffsets[rowBase + xMin];
+              const e0 = bucketOffsets[rowBase + xMax + 1];
+              if (s0 < e0) {
+                spanStart[spanCount] = s0;
+                spanEnd[spanCount] = e0;
+                spanCount++;
+              }
+            }
+            if (hasBottom) {
+              const rowBase = (gy + r) * gridW;
+              const s0 = bucketOffsets[rowBase + xMin];
+              const e0 = bucketOffsets[rowBase + xMax + 1];
+              if (s0 < e0) {
+                spanStart[spanCount] = s0;
+                spanEnd[spanCount] = e0;
+                spanCount++;
+              }
+            }
+            if (hasLeft || hasRight) {
+              const yStart = hasTop ? gy - r + 1 : 0;
+              const yEnd = hasBottom ? gy + r - 1 : gridH - 1;
+              if (hasLeft) {
+                const lx = gx - r;
+                for (let by = yStart; by <= yEnd; by++) {
+                  const bi = by * gridW + lx;
+                  const s0 = bucketOffsets[bi];
+                  const e0 = bucketOffsets[bi + 1];
+                  if (s0 < e0) {
+                    spanStart[spanCount] = s0;
+                    spanEnd[spanCount] = e0;
+                    spanCount++;
+                  }
+                }
+              }
+              if (hasRight) {
+                const rx = gx + r;
+                for (let by = yStart; by <= yEnd; by++) {
+                  const bi = by * gridW + rx;
+                  const s0 = bucketOffsets[bi];
+                  const e0 = bucketOffsets[bi + 1];
+                  if (s0 < e0) {
+                    spanStart[spanCount] = s0;
+                    spanEnd[spanCount] = e0;
+                    spanCount++;
+                  }
+                }
+              }
+            }
+          }
+
+          for (let sp = 0; sp < spanCount; sp++) {
+            const start = spanStart[sp];
+            const end = spanEnd[sp];
+            for (let k = start; k < end; k++) {
+              const s = bucketSeeds[k];
+              const dx = x - seedX[s];
+              const dy = y - seedY[s];
+              let d;
+              if (metricMode === 1) {
+                d = Math.abs(dx) + Math.abs(dy);
+              } else if (metricMode === 2) {
+                d = Math.max(Math.abs(dx), Math.abs(dy));
+              } else {
+                d = dx * dx + dy * dy;
+              }
+
+              if (d <= min2) {
+                if (d < min1) {
+                  min2 = min1;
+                  min1 = d;
+                  minIdx = s;
+                } else if (d === min1) {
+                  if (s < minIdx) minIdx = s;
+                  min2 = min1;
+                } else {
+                  min2 = d;
+                }
+              }
+            }
+          }
         }
 
-        if (d < min1) {
-          min2 = min1;
-          min1 = d;
-          minIdx = s;
-        } else if (d < min2) {
-          min2 = d;
-        }
+        const i = rowOffset + x;
+        nearestSeed[i] = minIdx;
+        dist1Sq[i] = metricMode === 0 ? min1 : min1 * min1;
+        dist2Sq[i] = metricMode === 0 ? min2 : min2 * min2;
+
+        const pi = i * 4;
+        cellSumR[minIdx] += pixels[pi];
+        cellSumG[minIdx] += pixels[pi + 1];
+        cellSumB[minIdx] += pixels[pi + 2];
+        cellCounts[minIdx]++;
       }
+    }
+  } else {
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let min1 = Infinity;
+        let min2 = Infinity;
+        let minIdx = -1;
 
-      const i = y * w + x;
-      nearestSeed[i] = minIdx;
-      dist1Sq[i] = metricMode === 0 ? min1 : min1 * min1;
-      dist2Sq[i] = metricMode === 0 ? min2 : min2 * min2;
+        for (let s = 0; s < n; s++) {
+          const dx = x - seeds[s].x;
+          const dy = y - seeds[s].y;
+          let d;
+          if (metricMode === 1) {
+            d = Math.abs(dx) + Math.abs(dy);
+          } else if (metricMode === 2) {
+            d = Math.max(Math.abs(dx), Math.abs(dy));
+          } else {
+            d = dx * dx + dy * dy;
+          }
 
-      const pi = i * 4;
-      cellSumR[minIdx] += pixels[pi];
-      cellSumG[minIdx] += pixels[pi + 1];
-      cellSumB[minIdx] += pixels[pi + 2];
-      cellCounts[minIdx]++;
+          if (d < min1) {
+            min2 = min1;
+            min1 = d;
+            minIdx = s;
+          } else if (d < min2) {
+            min2 = d;
+          }
+        }
+
+        const i = y * w + x;
+        nearestSeed[i] = minIdx;
+        dist1Sq[i] = metricMode === 0 ? min1 : min1 * min1;
+        dist2Sq[i] = metricMode === 0 ? min2 : min2 * min2;
+
+        const pi = i * 4;
+        cellSumR[minIdx] += pixels[pi];
+        cellSumG[minIdx] += pixels[pi + 1];
+        cellSumB[minIdx] += pixels[pi + 2];
+        cellCounts[minIdx]++;
+      }
     }
   }
 
@@ -146,10 +355,8 @@ function blendRGB(r, g, b, br, bg, bb, mode) {
       const sl = (base, blend) => {
         const f = blend / 255;
         if (f <= 0.5) return base - ((1 - 2 * f) * base * (255 - base)) / 255;
-        const d =
-          base < 64
-            ? (((16 * base) / 255 - 12) * (base / 255) + 4) * (base / 255)
-            : Math.sqrt(base / 255) * 255;
+        const bn = base / 255;
+        const d = (bn <= 0.25 ? ((16 * bn - 12) * bn + 4) * bn : Math.sqrt(bn)) * 255;
         return base + (2 * f - 1) * (d - base);
       };
       return [sl(r, br), sl(g, bg), sl(b, bb)];
@@ -202,7 +409,7 @@ export function renderVoronoi(
   const dispAmt = Math.max(0, Math.min(1, (dispersion || 0) / 100));
   const dispPx = dispAmt * 14;
 
-  const nSeeds = seeds ? seeds.length : avgColors.length / 4;
+  const nSeeds = seeds && seeds.length > 0 ? seeds.length : avgColors.length / 4;
   const seedShiftX = new Float32Array(nSeeds);
   const seedShiftY = new Float32Array(nSeeds);
   const seedDirX = new Float32Array(nSeeds);

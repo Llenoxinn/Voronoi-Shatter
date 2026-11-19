@@ -8,12 +8,40 @@
 2. Open **Figma Desktop** and go to **Plugins -> Development -> Import plugin from manifest...**.
 3. Select `manifest.json` from the unzipped folder (or `figma-plugin/manifest.json`), then run **Plugins -> Development -> Voronoi Shatter**.
 
-## How the `ui.html` Bridge Works
+## Features & Bridge Workflow
 
-- `code.js` opens `ui.html` (`980x680`), which embeds the Voronoi Shatter Studio inside an `<iframe>` at `http://localhost:5173/?embed=1` by default (or a custom `?studio=<url>` query parameter; `manifest.json` includes `devAllowedDomains` for local ports `5173` and `5175`).
-- If the local dev server (`npm run dev`) is not running within 3 seconds, `ui.html` displays a URL form so you can load any hosted Studio URL with `?embed=1`.
-- When the Studio finishes mounting, `src/lib/plugin-api.js` posts `voronoi:ready` to the bridge, enabling **Pull Selection**, **Insert PNG**, and **Insert SVG** (while `?embed=1` also exposes **Insert** in the Studio top bar).
-- On connect (or when clicking **Pull Selection**), `code.js` exports the currently selected Figma layer via `exportAsync({ format: 'PNG' })` and sends `selection-bytes` to `ui.html`, which converts it to a data URL and posts `voronoi:load-image` to the Studio iframe.
-- Triggering **Insert** in the Studio (or **Insert SVG** / **Insert PNG** in the `ui.html` toolbar, which posts `voronoi:export` to the iframe) emits `voronoi:export-result`, which `ui.html` relays to `code.js` via `parent.postMessage({ pluginMessage }, '*')`:
-  - `insert-svg` — creates a vector node via `figma.createNodeFromSvg(msg.svg)` and centers it in the viewport.
-  - `insert-png` — creates an image rectangle via `figma.createImage(new Uint8Array(msg.bytes))` sized to `width x height` and centers it in the viewport.
+- **Live Figma Selection Indicator**: `code.js` subscribes to `figma.on('selectionchange')` and posts `selection-info` (`{ count, name }`) to `ui.html`, keeping the toolbar pill synced with the currently selected layer name (or `No layer selected`).
+- **`1×` / `2×` Retina Export Scale**: Choose `1×` or `2×` next to **Pull Selection** to export the active Figma layer via `node.exportAsync({ format: 'PNG', constraint: { type: 'SCALE', value: scale } })` (`code.js` clamps `scale` between `1` and `4`).
+- **Smart Placement & Naming**: Newly inserted SVG and PNG results are placed `24px` to the right of the active selection or previously pulled source layer on the current page (falling back to the viewport center when no reference layer is available) and named `Voronoi Shatter — <Layer Name>` (or `Voronoi Shatter`). SVG and PNG creation are wrapped in `try/catch` to report errors safely without crashing the plugin.
+- **Custom & Hosted Studio URLs (Persisted)**:
+  - `manifest.json` configures `networkAccess.allowedDomains: ["*"]` (plus `devAllowedDomains` for local ports `5173` and `5175`) so you can connect to either `npm run dev` locally or any hosted Voronoi Shatter Studio deployment.
+  - Click the **URL** toggle button in the toolbar anytime to open or close the Studio URL panel (it also appears automatically if the Studio has not responded within 3 seconds).
+  - Submitted URLs automatically preserve or append `?embed=1` and persist across sessions via `figma.clientStorage` (`get-studio-url` / `save-studio-url`). Passing a `?studio=<url>` query parameter overrides the saved URL for that session.
+- **Export Error Feedback**: If you click **Insert SVG** or **Insert PNG** before loading an image (or if an export fails), the Studio emits `voronoi:export-error`; `ui.html` updates the toolbar status text and forwards `{ type: 'notify', message }` to Figma.
+
+## Message Protocol
+
+### Plugin Sandbox (`code.js`) <-> Bridge UI (`ui.html`)
+
+| Direction | Message `type` | Payload |
+| --- | --- | --- |
+| `code.js` -> `ui.html` | `selection-info` | `{ count: number, name: string }` |
+| `code.js` -> `ui.html` | `selection-bytes` | `{ bytes: number[], name: string, scale: number }` |
+| `code.js` -> `ui.html` | `studio-url` | `{ url: string }` |
+| `ui.html` -> `code.js` | `request-selection` | `{ silent?: boolean, scale?: number }` |
+| `ui.html` -> `code.js` | `get-studio-url` | `{}` |
+| `ui.html` -> `code.js` | `save-studio-url` | `{ url: string }` |
+| `ui.html` -> `code.js` | `insert-svg` | `{ svg: string }` |
+| `ui.html` -> `code.js` | `insert-png` | `{ bytes: number[], width: number, height: number }` |
+| `ui.html` -> `code.js` | `notify` | `{ message: string }` |
+
+### Bridge UI (`ui.html`) <-> Embedded Studio (`src/lib/plugin-api.js`)
+
+| Direction | Message `type` | Payload |
+| --- | --- | --- |
+| Studio -> Host | `voronoi:ready` | `{}` |
+| Studio -> Host | `voronoi:export-result` | `{ format: 'svg', svg: string }` or `{ format: 'png', bytes: number[], width: number, height: number }` |
+| Studio -> Host | `voronoi:export-error` | `{ format?: string, message: string }` |
+| Host -> Studio | `voronoi:load-image` | `{ dataUrl: string }` |
+| Host -> Studio | `voronoi:set-params` | `{ params: Record<string, unknown> }` |
+| Host -> Studio | `voronoi:export` | `{ format: 'svg' \| 'png' }` |

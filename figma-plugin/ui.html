@@ -10,10 +10,14 @@
         font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         --bg: #161618;
         --panel: #1f1f23;
+        --elevated: #27272c;
         --border: #2e2e34;
+        --border-strong: #3f3f46;
         --ink: #f4f4f5;
         --muted: #a1a1aa;
         --accent: #3b82f6;
+        --ready: #22c55e;
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
       }
 
       * {
@@ -37,11 +41,12 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: 10px;
         padding: 8px 12px;
         background: var(--panel);
         border-bottom: 1px solid var(--border);
         font-size: 12px;
+        flex-shrink: 0;
       }
 
       .toolbar-left {
@@ -49,6 +54,7 @@
         align-items: center;
         gap: 8px;
         min-width: 0;
+        flex: 1;
       }
 
       .status-dot {
@@ -57,14 +63,65 @@
         border-radius: 999px;
         background: #71717a;
         flex-shrink: 0;
+        transition: background-color 180ms var(--ease-out);
       }
 
       .status-dot.ready {
-        background: #22c55e;
+        background: var(--ready);
       }
 
       .status-text {
         color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .toolbar-divider {
+        width: 1px;
+        height: 14px;
+        background: var(--border);
+        flex-shrink: 0;
+      }
+
+      .selection-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        max-width: 210px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.2;
+        flex-shrink: 1;
+        min-width: 0;
+        transition: border-color 150ms var(--ease-out), color 150ms var(--ease-out);
+      }
+
+      .selection-pill.has-selection {
+        border-color: var(--border-strong);
+        color: var(--ink);
+      }
+
+      .selection-pill svg {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0;
+        opacity: 0.72;
+      }
+
+      .selection-pill.has-selection svg {
+        color: var(--accent);
+        opacity: 1;
+      }
+
+      .selection-label {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -77,20 +134,62 @@
         flex-shrink: 0;
       }
 
+      .scale-toggle {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        gap: 2px;
+      }
+
+      .scale-btn {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        border-radius: 4px;
+        padding: 3px 7px;
+        font-size: 11px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.2;
+      }
+
+      .scale-btn.active {
+        background: #323238;
+        color: var(--ink);
+      }
+
       button {
         appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
         border: 1px solid var(--border);
-        background: #27272c;
+        background: var(--elevated);
         color: var(--ink);
         border-radius: 6px;
         padding: 5px 10px;
         font-size: 12px;
         font-weight: 500;
+        font-family: inherit;
         cursor: pointer;
+        transition:
+          background-color 150ms cubic-bezier(0.23, 1, 0.32, 1),
+          transform 150ms cubic-bezier(0.23, 1, 0.32, 1),
+          opacity 150ms cubic-bezier(0.23, 1, 0.32, 1);
       }
 
-      button:hover:not(:disabled) {
-        background: #323238;
+      button:not(:disabled):active {
+        transform: scale(0.96);
+      }
+
+      button:focus-visible,
+      input:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
       }
 
       button.primary {
@@ -99,13 +198,58 @@
         color: #ffffff;
       }
 
-      button.primary:hover:not(:disabled) {
-        filter: brightness(1.08);
+      button.icon-toggle {
+        padding: 5px 8px;
+        color: var(--muted);
+      }
+
+      button.icon-toggle.active {
+        color: var(--ink);
+        border-color: var(--border-strong);
+        background: #323238;
+      }
+
+      button.ghost {
+        background: transparent;
+        color: var(--muted);
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .scale-btn:hover:not(:disabled) {
+          background: var(--elevated);
+          color: var(--ink);
+        }
+
+        button:hover:not(:disabled) {
+          background: #323238;
+        }
+
+        button.primary:hover:not(:disabled) {
+          background: #2563eb;
+          border-color: #2563eb;
+        }
+
+        button.icon-toggle:hover:not(:disabled) {
+          color: var(--ink);
+          border-color: var(--border-strong);
+          background: #323238;
+        }
+
+        button.ghost:hover:not(:disabled) {
+          background: var(--elevated);
+          color: var(--ink);
+        }
       }
 
       button:disabled {
         opacity: 0.45;
         cursor: not-allowed;
+      }
+
+      button svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
       }
 
       .stage {
@@ -126,32 +270,62 @@
         position: absolute;
         inset: 0;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 10px;
         padding: 24px;
-        text-align: center;
-        background: var(--bg);
+        background: rgba(22, 22, 24, 0.92);
       }
 
       .fallback[hidden] {
         display: none;
       }
 
-      .fallback p {
+      .url-card {
+        width: 100%;
+        max-width: 460px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        text-align: left;
+      }
+
+      .url-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .url-card-header strong {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .url-card p {
         margin: 0;
-        max-width: 420px;
-        font-size: 13px;
-        line-height: 1.5;
+        font-size: 12px;
+        line-height: 1.55;
         color: var(--muted);
+      }
+
+      .url-card code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        padding: 1px 4px;
+        border-radius: 4px;
+        background: var(--bg);
+        color: var(--ink);
       }
 
       .url-form {
         display: flex;
         gap: 6px;
         width: 100%;
-        max-width: 420px;
       }
 
       .url-form input {
@@ -160,9 +334,55 @@
         padding: 6px 10px;
         border-radius: 6px;
         border: 1px solid var(--border);
-        background: var(--panel);
+        background: var(--bg);
         color: var(--ink);
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      .url-form input:focus {
+        border-color: var(--accent);
+      }
+
+      .url-card .url-error {
+        margin: 0;
         font-size: 12px;
+        line-height: 1.4;
+        color: #f87171;
+      }
+
+      .url-card .url-error[hidden] {
+        display: none;
+      }
+
+      .url-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .url-hint {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      @media (max-width: 640px) {
+        .url-form input {
+          font-size: 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.01ms !important;
+        }
+
+        button:not(:disabled):active {
+          transform: none;
+        }
       }
     </style>
   </head>
@@ -170,12 +390,69 @@
     <header class="toolbar">
       <div class="toolbar-left">
         <span id="statusDot" class="status-dot" aria-hidden="true"></span>
-        <span id="statusText" class="status-text">Connecting to Voronoi Shatter studio…</span>
+        <span
+          id="statusText"
+          class="status-text"
+          aria-live="polite"
+          aria-atomic="true"
+          title="Connecting to Voronoi Shatter studio…"
+        >
+          Connecting to Voronoi Shatter studio…
+        </span>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <span
+          id="selectionPill"
+          class="selection-pill"
+          title="Select a layer or frame in Figma to pull into Studio"
+        >
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="2.5" y="2.5" width="11" height="11" rx="2" />
+            <path d="M5.5 8h5" />
+          </svg>
+          <span id="selectionText" class="selection-label">No layer selected</span>
+        </span>
       </div>
       <div class="actions">
+        <div class="scale-toggle" role="group" aria-label="Selection export scale">
+          <button
+            id="scale1xBtn"
+            type="button"
+            class="scale-btn active"
+            data-scale="1"
+            aria-pressed="true"
+            title="Export Figma selection at 1× scale"
+          >
+            1×
+          </button>
+          <button
+            id="scale2xBtn"
+            type="button"
+            class="scale-btn"
+            data-scale="2"
+            aria-pressed="false"
+            title="Export Figma selection at 2× Retina scale"
+          >
+            2×
+          </button>
+        </div>
         <button id="pullBtn" type="button" disabled>Pull Selection</button>
         <button id="exportPngBtn" type="button" disabled>Insert PNG</button>
         <button id="exportSvgBtn" type="button" class="primary" disabled>Insert SVG</button>
+        <button
+          id="urlToggleBtn"
+          type="button"
+          class="icon-toggle"
+          aria-expanded="false"
+          aria-controls="fallback"
+          title="Switch Studio URL (localhost or hosted)"
+        >
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M6.5 9.5L9.5 6.5" />
+            <path d="M8.75 4.25L10.25 2.75a2.12 2.12 0 1 1 3 3L11.75 7.25" />
+            <path d="M7.25 11.75L5.75 13.25a2.12 2.12 0 1 1-3-3L4.25 8.75" />
+          </svg>
+          <span>URL</span>
+        </button>
       </div>
     </header>
 
@@ -186,50 +463,168 @@
         allow="clipboard-read; clipboard-write"
       ></iframe>
 
-      <section id="fallback" class="fallback" hidden>
-        <strong>Voronoi Shatter Studio</strong>
-        <p>
-          Start the studio dev server (<code>npm run dev</code>) or enter a hosted studio URL with
-          <code>?embed=1</code> to connect the bridge.
-        </p>
-        <form id="urlForm" class="url-form">
-          <input
-            id="studioUrlInput"
-            type="url"
-            value="http://localhost:5173/?embed=1"
-            aria-label="Studio URL"
-            required
-          />
-          <button type="submit" class="primary">Load</button>
-        </form>
+      <section id="fallback" class="fallback" hidden aria-label="Studio URL settings">
+        <div class="url-card">
+          <div class="url-card-header">
+            <strong>Voronoi Shatter Studio URL</strong>
+            <button id="closePanelBtn" type="button" class="ghost">Close</button>
+          </div>
+          <p>
+            Start the local dev server (<code>npm run dev</code>) or enter a hosted Studio URL.
+            <code>?embed=1</code> is automatically preserved and your URL is remembered in Figma.
+          </p>
+          <form id="urlForm" class="url-form" novalidate>
+            <input
+              id="studioUrlInput"
+              type="url"
+              value="http://localhost:5173/?embed=1"
+              placeholder="https://studio.example.com/?embed=1"
+              aria-label="Studio URL"
+              maxlength="511"
+              required
+            />
+            <button type="submit" class="primary">Load</button>
+          </form>
+          <p id="urlError" class="url-error" role="alert" hidden></p>
+          <div class="url-card-footer">
+            <span class="url-hint">Ports 5173/5175 and custom HTTPS hosts supported.</span>
+            <button id="resetLocalBtn" type="button" class="ghost">Use Localhost</button>
+          </div>
+        </div>
       </section>
     </main>
 
     <script>
       (function () {
         const DEFAULT_STUDIO_URL = 'http://localhost:5173/?embed=1';
+        const MAX_STUDIO_URL_LENGTH = 512;
         const frame = document.getElementById('studioFrame');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
+        const selectionPill = document.getElementById('selectionPill');
+        const selectionText = document.getElementById('selectionText');
+        const scaleButtons = Array.from(document.querySelectorAll('.scale-btn'));
         const pullBtn = document.getElementById('pullBtn');
         const exportSvgBtn = document.getElementById('exportSvgBtn');
         const exportPngBtn = document.getElementById('exportPngBtn');
+        const urlToggleBtn = document.getElementById('urlToggleBtn');
         const fallback = document.getElementById('fallback');
+        const closePanelBtn = document.getElementById('closePanelBtn');
+        const resetLocalBtn = document.getElementById('resetLocalBtn');
         const urlForm = document.getElementById('urlForm');
         const studioUrlInput = document.getElementById('studioUrlInput');
+        const urlError = document.getElementById('urlError');
+
+        const queryParams = new URLSearchParams(window.location.search);
+        const queryStudioUrl = (queryParams.get('studio') || '').trim();
 
         let studioReady = false;
+        let exportScale = 1;
+        let currentStudioUrl = '';
+        let currentStudioOrigin = null;
+        let initialLoadStarted = false;
         let fallbackTimer = null;
+        let startupTimer = null;
+
+        function setStatus(text) {
+          const label = String(text || '');
+          statusText.textContent = label;
+          statusText.title = label;
+        }
+
+        function isAllowedStudioUrl(rawUrl) {
+          if (typeof rawUrl !== 'string') return false;
+          const trimmed = rawUrl.trim();
+          if (!trimmed || trimmed.length >= MAX_STUDIO_URL_LENGTH) return false;
+          try {
+            const parsed = new URL(trimmed);
+            return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+          } catch (err) {
+            return false;
+          }
+        }
+
+        function normalizeStudioUrl(rawUrl) {
+          if (!isAllowedStudioUrl(rawUrl)) return '';
+          try {
+            const parsed = new URL(rawUrl.trim());
+            if (!parsed.searchParams.has('embed')) {
+              parsed.searchParams.set('embed', '1');
+            }
+            const normalized = parsed.toString();
+            return isAllowedStudioUrl(normalized) ? normalized : '';
+          } catch (err) {
+            return '';
+          }
+        }
+
+        function showUrlError(message) {
+          urlError.textContent = message;
+          urlError.hidden = false;
+          setStatus(message);
+        }
+
+        function clearUrlError() {
+          urlError.textContent = '';
+          urlError.hidden = true;
+        }
+
+        function setUrlPanelOpen(open, shouldFocus = false) {
+          fallback.hidden = !open;
+          urlToggleBtn.classList.toggle('active', open);
+          urlToggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if (open) {
+            if (currentStudioUrl) {
+              studioUrlInput.value = currentStudioUrl;
+            }
+            if (shouldFocus) {
+              studioUrlInput.focus();
+              studioUrlInput.select();
+            }
+          } else {
+            clearUrlError();
+          }
+        }
+
+        function updateSelectionDisplay(count, name) {
+          const safeCount = Number(count) || 0;
+          const cleanName = typeof name === 'string' ? name.trim() : '';
+          if (safeCount <= 0) {
+            selectionPill.classList.remove('has-selection');
+            selectionText.textContent = 'No layer selected';
+            selectionPill.title = 'Select a layer or frame in Figma to pull into Studio';
+            return;
+          }
+
+          const displayName = cleanName || 'Untitled layer';
+          selectionPill.classList.add('has-selection');
+          selectionText.textContent =
+            safeCount > 1 ? displayName + ' (+' + (safeCount - 1) + ')' : displayName;
+          selectionPill.title =
+            safeCount > 1
+              ? safeCount + ' layers selected — pulling \u201c' + displayName + '\u201d'
+              : 'Selected layer: ' + displayName;
+        }
+
+        function setScale(nextScale) {
+          exportScale = nextScale === 2 ? 2 : 1;
+          for (let i = 0; i < scaleButtons.length; i++) {
+            const btn = scaleButtons[i];
+            const isActive = Number(btn.getAttribute('data-scale')) === exportScale;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          }
+        }
 
         function setReady(ready, label) {
           studioReady = ready;
           statusDot.classList.toggle('ready', ready);
-          statusText.textContent = label;
+          setStatus(label);
           pullBtn.disabled = !ready;
           exportSvgBtn.disabled = !ready;
           exportPngBtn.disabled = !ready;
           if (ready) {
-            fallback.hidden = true;
+            setUrlPanelOpen(false);
             if (fallbackTimer) {
               clearTimeout(fallbackTimer);
               fallbackTimer = null;
@@ -238,16 +633,33 @@
         }
 
         function loadStudio(url) {
+          if (!isAllowedStudioUrl(url)) {
+            setUrlPanelOpen(true, true);
+            showUrlError('Invalid Studio URL — only http:// and https:// URLs under 512 chars are allowed.');
+            return false;
+          }
+          const normalized = normalizeStudioUrl(url);
+          if (!normalized || !isAllowedStudioUrl(normalized)) {
+            setUrlPanelOpen(true, true);
+            showUrlError('Invalid Studio URL — only http:// and https:// URLs under 512 chars are allowed.');
+            return false;
+          }
+          clearUrlError();
+          currentStudioUrl = normalized;
+          currentStudioOrigin = new URL(normalized).origin;
+          studioUrlInput.value = normalized;
           setReady(false, 'Connecting to Voronoi Shatter studio…');
-          fallback.hidden = true;
-          frame.src = url;
+          setUrlPanelOpen(false);
+          frame.src = normalized;
+
           if (fallbackTimer) clearTimeout(fallbackTimer);
           fallbackTimer = setTimeout(() => {
             if (!studioReady) {
-              statusText.textContent = 'Waiting for studio at ' + url;
-              fallback.hidden = false;
+              setStatus('Waiting for studio at ' + normalized);
+              setUrlPanelOpen(true, false);
             }
           }, 3000);
+          return true;
         }
 
         function postToFigma(pluginMessage) {
@@ -255,12 +667,18 @@
         }
 
         function postToStudio(message) {
-          if (!frame.contentWindow) return;
-          frame.contentWindow.postMessage(message, '*');
+          if (!frame.contentWindow || !currentStudioOrigin) return;
+          frame.contentWindow.postMessage(message, currentStudioOrigin);
+        }
+
+        for (let i = 0; i < scaleButtons.length; i++) {
+          scaleButtons[i].addEventListener('click', () => {
+            setScale(Number(scaleButtons[i].getAttribute('data-scale')));
+          });
         }
 
         pullBtn.addEventListener('click', () => {
-          postToFigma({ type: 'request-selection', silent: false });
+          postToFigma({ type: 'request-selection', silent: false, scale: exportScale });
         });
 
         exportSvgBtn.addEventListener('click', () => {
@@ -271,10 +689,52 @@
           postToStudio({ type: 'voronoi:export', format: 'png' });
         });
 
+        urlToggleBtn.addEventListener('click', () => {
+          setUrlPanelOpen(fallback.hidden, fallback.hidden);
+        });
+
+        closePanelBtn.addEventListener('click', () => {
+          setUrlPanelOpen(false);
+        });
+
+        fallback.addEventListener('click', (event) => {
+          if (event.target === fallback && studioReady) {
+            setUrlPanelOpen(false);
+          }
+        });
+
+        window.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && !fallback.hidden) {
+            setUrlPanelOpen(false);
+          }
+        });
+
+        resetLocalBtn.addEventListener('click', () => {
+          studioUrlInput.value = DEFAULT_STUDIO_URL;
+          postToFigma({ type: 'save-studio-url', url: DEFAULT_STUDIO_URL });
+          loadStudio(DEFAULT_STUDIO_URL);
+        });
+
+        studioUrlInput.addEventListener('input', clearUrlError);
+
         urlForm.addEventListener('submit', (event) => {
           event.preventDefault();
-          const url = studioUrlInput.value.trim();
-          if (url) loadStudio(url);
+          const rawUrl = studioUrlInput.value.trim();
+          if (!isAllowedStudioUrl(rawUrl)) {
+            showUrlError('Invalid Studio URL — only http:// and https:// URLs under 512 chars are allowed.');
+            studioUrlInput.focus();
+            return;
+          }
+          const normalized = normalizeStudioUrl(rawUrl);
+          if (!normalized || !isAllowedStudioUrl(normalized)) {
+            showUrlError('Invalid Studio URL — only http:// and https:// URLs under 512 chars are allowed.');
+            studioUrlInput.focus();
+            return;
+          }
+          clearUrlError();
+          studioUrlInput.value = normalized;
+          postToFigma({ type: 'save-studio-url', url: normalized });
+          loadStudio(normalized);
         });
 
         window.addEventListener('message', (event) => {
@@ -282,34 +742,82 @@
           if (!data || typeof data !== 'object') return;
 
           // Messages from Figma plugin main thread (code.js)
-          if (data.pluginMessage && typeof data.pluginMessage === 'object') {
+          if (
+            event.source === window.parent &&
+            data.pluginMessage &&
+            typeof data.pluginMessage === 'object'
+          ) {
             const pm = data.pluginMessage;
+
+            if (pm.type === 'selection-info') {
+              updateSelectionDisplay(pm.count, pm.name);
+              return;
+            }
+
+            if (pm.type === 'studio-url') {
+              if (startupTimer) {
+                clearTimeout(startupTimer);
+                startupTimer = null;
+              }
+              if (!queryStudioUrl) {
+                const savedUrl =
+                  typeof pm.url === 'string' && isAllowedStudioUrl(pm.url)
+                    ? normalizeStudioUrl(pm.url)
+                    : '';
+                const targetUrl = savedUrl || DEFAULT_STUDIO_URL;
+                if (!initialLoadStarted) {
+                  initialLoadStarted = true;
+                  loadStudio(targetUrl);
+                } else if (targetUrl !== currentStudioUrl && !studioReady) {
+                  loadStudio(targetUrl);
+                }
+              }
+              return;
+            }
+
             if (pm.type === 'selection-bytes' && pm.bytes) {
               const blob = new Blob([new Uint8Array(pm.bytes)], { type: 'image/png' });
               const reader = new FileReader();
               reader.onload = () => {
                 postToStudio({ type: 'voronoi:load-image', dataUrl: reader.result });
-                statusText.textContent = 'Loaded: ' + (pm.name || 'Selection');
+                const scaleTag = pm.scale && pm.scale > 1 ? ' (' + pm.scale + '×)' : '';
+                setStatus('Loaded: ' + (pm.name || 'Selection') + scaleTag);
+              };
+              reader.onerror = () => {
+                setStatus('Unable to decode selected layer.');
               };
               reader.readAsDataURL(blob);
               return;
             }
+
             postToStudio(pm);
             return;
           }
 
           // Messages from Voronoi Shatter studio iframe
           if (event.source !== frame.contentWindow) return;
+          if (currentStudioOrigin && event.origin !== currentStudioOrigin) return;
 
           if (data.type === 'voronoi:ready') {
             setReady(true, 'Studio connected');
-            postToFigma({ type: 'request-selection', silent: true });
+            postToFigma({ type: 'request-selection', silent: true, scale: exportScale });
+            return;
+          }
+
+          if (data.type === 'voronoi:export-error') {
+            const message =
+              typeof data.message === 'string' && data.message.trim()
+                ? data.message.trim()
+                : 'Load an image in the Studio before inserting.';
+            setStatus(message);
+            postToFigma({ type: 'notify', message });
             return;
           }
 
           if (data.type === 'voronoi:export-result') {
             if (data.format === 'svg' && typeof data.svg === 'string') {
               postToFigma({ type: 'insert-svg', svg: data.svg });
+              setStatus('Inserted SVG into Figma');
             } else if (data.format === 'png' && data.bytes) {
               postToFigma({
                 type: 'insert-png',
@@ -317,14 +825,30 @@
                 width: data.width,
                 height: data.height,
               });
+              setStatus('Inserted PNG into Figma');
             }
           }
         });
 
-        const params = new URLSearchParams(window.location.search);
-        const initialUrl = params.get('studio') || DEFAULT_STUDIO_URL;
-        studioUrlInput.value = initialUrl;
-        loadStudio(initialUrl);
+        if (queryStudioUrl) {
+          initialLoadStarted = true;
+          if (isAllowedStudioUrl(queryStudioUrl)) {
+            loadStudio(queryStudioUrl);
+          } else {
+            loadStudio(DEFAULT_STUDIO_URL);
+            setStatus('Ignored unsafe ?studio URL — using localhost.');
+          }
+          postToFigma({ type: 'get-studio-url' });
+        } else {
+          startupTimer = setTimeout(() => {
+            startupTimer = null;
+            if (!initialLoadStarted) {
+              initialLoadStarted = true;
+              loadStudio(DEFAULT_STUDIO_URL);
+            }
+          }, 150);
+          postToFigma({ type: 'get-studio-url' });
+        }
       })();
     </script>
   </body>

@@ -9,7 +9,7 @@
     srcData = null,
     impact = null,
     showAlpha = false,
-    comparing = $bindable(false),
+    comparing = false,
     onFile,
     onSample,
     onImpact,
@@ -74,7 +74,7 @@
     <UploadZone {onFile} {onSample} />
   {/if}
 
-  <div class="relative w-full h-full {hasImage && zoom100 ? 'overflow-auto' : 'overflow-hidden'}">
+  <div class="relative w-full h-full overscroll-contain {hasImage && zoom100 ? 'overflow-auto' : 'overflow-hidden'}">
     <div class="flex items-center justify-center {hasImage && zoom100 ? 'min-w-full min-h-full w-max h-max' : 'w-full h-full'} p-4 sm:p-8">
       <div class="relative flex items-center justify-center {hasImage && zoom100 ? 'max-w-none max-h-none shrink-0' : 'max-w-full max-h-full'}">
         {#if hasImage && alphaVisible}
@@ -89,7 +89,7 @@
           bind:this={canvasEl}
           onclick={handleCanvasClick}
           title={hasImage ? 'Click anywhere to set shatter impact point' : undefined}
-          class="relative block {hasImage && zoom100 ? 'max-w-none max-h-none' : 'max-w-full max-h-full'} rounded-lg ring-1 ring-black/10 dark:ring-white/10 shadow-[0_20px_56px_rgba(17,17,19,0.16)] dark:shadow-[0_24px_68px_rgba(0,0,0,0.7)] {hasImage ? 'cursor-crosshair' : 'pointer-events-none'}"
+          class="relative block select-none {hasImage && zoom100 ? 'max-w-none max-h-none' : 'max-w-full max-h-full'} rounded-lg ring-1 ring-black/10 dark:ring-white/10 shadow-[0_20px_56px_rgba(17,17,19,0.16)] dark:shadow-[0_24px_68px_rgba(0,0,0,0.7)] {hasImage ? 'cursor-crosshair' : 'pointer-events-none'}"
           class:opacity-0={!hasImage || comparing}
         ></canvas>
 
@@ -113,14 +113,14 @@
 
   {#if hasImage}
     <!-- Top-Right Canvas Viewport Controls -->
-    <div class="absolute top-3 right-3 z-20 flex items-center gap-1 p-1 rounded-lg bg-studio-panel/95 backdrop-blur-md border border-studio-border shadow-sm">
+    <div class="absolute top-3 right-3 z-20 flex items-center gap-1 p-1 rounded-[10px] bg-studio-panel/95 backdrop-blur-md border border-studio-border shadow-sm">
       <button
         type="button"
         onclick={() => (alphaOverride = !alphaVisible)}
         aria-pressed={alphaVisible}
         aria-label="Toggle transparency grid"
         title="Transparency grid"
-        class="inline-flex items-center justify-center w-8 h-8 md:w-7 md:h-7 rounded-md enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {alphaVisible
+        class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 md:w-7 md:h-7 rounded-md motion-safe:enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {alphaVisible
           ? 'bg-studio-ink text-studio-bg'
           : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated/70'}"
       >
@@ -139,7 +139,7 @@
           type="button"
           onclick={() => (zoom100 = false)}
           aria-pressed={!zoom100}
-          class="h-8 md:h-7 px-2.5 rounded-md text-[11px] font-medium tabular-nums enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {!zoom100
+          class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 md:h-7 px-2.5 rounded-md text-[0.6875rem] font-medium tabular-nums motion-safe:enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {!zoom100
             ? 'bg-studio-ink text-studio-bg'
             : 'text-studio-muted hover:text-studio-ink'}"
         >
@@ -149,7 +149,7 @@
           type="button"
           onclick={() => (zoom100 = true)}
           aria-pressed={zoom100}
-          class="h-8 md:h-7 px-2.5 rounded-md text-[11px] font-medium tabular-nums enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {zoom100
+          class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 md:h-7 px-2.5 rounded-md text-[0.6875rem] font-medium tabular-nums motion-safe:enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {zoom100
             ? 'bg-studio-ink text-studio-bg'
             : 'text-studio-muted hover:text-studio-ink'}"
         >
@@ -159,17 +159,19 @@
     </div>
 
     <!-- Bottom-Left Workstation Shortcut Bar -->
-    <div class="hidden sm:flex items-center gap-2.5 absolute bottom-3 left-3 z-20 px-3 py-1 rounded-md bg-studio-panel/90 backdrop-blur-md border border-studio-border text-[11px] text-studio-muted">
+    <div class="hidden sm:flex items-center gap-2.5 absolute bottom-3 left-3 z-20 px-3 py-1 rounded-md bg-studio-panel/90 backdrop-blur-md border border-studio-border text-[0.6875rem] text-studio-muted">
       <span>Click canvas to shatter</span>
       <span class="text-studio-border-strong">&middot;</span>
       <span><kbd class="font-mono text-studio-ink">Space</kbd> reseed</span>
       <span class="text-studio-border-strong">&middot;</span>
       <span><kbd class="font-mono text-studio-ink">C</kbd> compare</span>
+      <span class="text-studio-border-strong">&middot;</span>
+      <span><kbd class="font-mono text-studio-ink">Ctrl+Z</kbd> undo</span>
     </div>
   {/if}
 
   {#if hasImage && comparing}
-    <span class="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-md bg-studio-panel border border-studio-accent/40 text-xs font-medium text-studio-accent pointer-events-none">
+    <span class="absolute top-3 left-3 sm:left-1/2 sm:-translate-x-1/2 z-20 px-3 py-1 rounded-md bg-studio-panel border border-studio-accent/40 text-xs font-medium text-studio-accent pointer-events-none">
       Original
     </span>
   {/if}

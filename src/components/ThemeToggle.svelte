@@ -1,7 +1,6 @@
 <script>
   import { getAppState, toggleTheme } from '../context.svelte.js';
 
-  let { size = 'sm' } = $props();
   const appState = getAppState();
 </script>
 
@@ -10,9 +9,7 @@
   onclick={() => toggleTheme(appState)}
   aria-label={appState.isDark ? 'Switch to light studio theme' : 'Switch to darkroom theme'}
   title={appState.isDark ? 'Gallery Stone' : 'Darkroom'}
-  class="inline-flex items-center justify-center rounded-lg text-studio-muted hover:text-studio-ink hover:bg-studio-elevated active:scale-[0.96] transition-[color,background-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {size === 'md'
-    ? 'w-9 h-9 border border-studio-border bg-studio-panel'
-    : 'w-9 h-9 md:w-8 md:h-8'}"
+  class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 md:w-8 md:h-8 rounded-lg text-studio-muted hover:text-studio-ink hover:bg-studio-elevated motion-safe:enabled:active:scale-[0.96] transition-[color,background-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60"
 >
   {#if appState.isDark}
     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

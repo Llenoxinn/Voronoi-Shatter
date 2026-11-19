@@ -17,7 +17,7 @@
   <div class="flex items-center justify-between gap-2">
     <label for={id} class="text-xs font-medium text-studio-muted">{label}</label>
     <span class="inline-flex items-baseline gap-0.5 px-2 py-0.5 rounded-md bg-studio-elevated font-mono text-xs font-semibold text-studio-ink tabular-nums">
-      {value}{#if unit}<span class="text-[10px] font-normal text-studio-muted">{unit}</span>{/if}
+      {value}{#if unit}<span class="text-[0.625rem] font-normal text-studio-muted">{unit}</span>{/if}
     </span>
   </div>
   <input
@@ -30,6 +30,6 @@
     oninput={handleInput}
     aria-label={label}
     class="w-full"
-    style="background: linear-gradient(to right, var(--studio-ink) 0%, var(--studio-ink) {pct}%, var(--studio-track) {pct}%, var(--studio-track) 100%);"
+    style="background-image: linear-gradient(to right, var(--studio-ink) 0%, var(--studio-ink) {pct}%, var(--studio-track) {pct}%, var(--studio-track) 100%);"
   />
 </div>

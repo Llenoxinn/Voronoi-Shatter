@@ -14,7 +14,7 @@
 {#if appState.hasImage}
   <nav
     aria-label="Studio tools"
-    class="hidden md:flex flex-col items-center justify-between w-12 shrink-0 py-3 bg-studio-panel border-r border-studio-border select-none"
+    class="hidden md:flex flex-col items-center justify-between w-12 shrink-0 py-3 bg-studio-panel border-r border-studio-border"
   >
     <div class="flex flex-col items-center gap-1.5">
       <!-- Radial Impact Indicator / Clear -->
@@ -26,7 +26,7 @@
         title={appState.params.impact ? 'Radial impact active — click to reset to grid' : 'Impact tool active — click canvas to fracture radially'}
         aria-label={appState.params.impact ? 'Reset radial impact to grid' : 'Radial impact tool'}
         aria-pressed={Boolean(appState.params.impact)}
-        class="inline-flex items-center justify-center w-9 h-9 rounded-lg active:scale-[0.96] transition-[background-color,color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {appState.params.impact
+        class="inline-flex items-center justify-center w-9 h-9 rounded-lg motion-safe:enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-studio-panel {appState.params.impact
           ? 'bg-studio-accent text-studio-accent-ink'
           : 'text-studio-ink bg-studio-elevated/70'}"
       >
@@ -50,7 +50,7 @@
         title="Hold to compare original (C)"
         aria-label="Hold to compare original"
         aria-pressed={comparing}
-        class="inline-flex items-center justify-center w-9 h-9 rounded-lg active:scale-[0.96] transition-[background-color,color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {comparing
+        class="inline-flex items-center justify-center w-9 h-9 rounded-lg motion-safe:enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {comparing
           ? 'bg-studio-ink text-studio-bg'
           : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated'}"
       >
@@ -67,7 +67,7 @@
         disabled={appState.processing}
         title="Reseed shards (Space)"
         aria-label="Reseed shards"
-        class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-studio-muted hover:text-studio-ink hover:bg-studio-elevated enabled:active:scale-[0.96] disabled:opacity-35 transition-[background-color,color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50"
+        class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-studio-muted hover:text-studio-ink hover:bg-studio-elevated motion-safe:enabled:active:scale-[0.96] disabled:opacity-35 transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60"
       >
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="23 4 23 10 17 10" />
@@ -87,7 +87,7 @@
         title="Toggle cutout border gaps"
         aria-label="Toggle cutout border gaps"
         aria-pressed={appState.params.transparentBorder}
-        class="inline-flex items-center justify-center w-9 h-9 rounded-lg active:scale-[0.96] transition-[background-color,color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {appState.params.transparentBorder
+        class="inline-flex items-center justify-center w-9 h-9 rounded-lg motion-safe:enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {appState.params.transparentBorder
           ? 'bg-studio-ink text-studio-bg'
           : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated'}"
       >
@@ -109,7 +109,7 @@
         title="Toggle wireframe only"
         aria-label="Toggle wireframe only"
         aria-pressed={appState.params.wireframe}
-        class="inline-flex items-center justify-center w-9 h-9 rounded-lg active:scale-[0.96] transition-[background-color,color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/50 {appState.params.wireframe
+        class="inline-flex items-center justify-center w-9 h-9 rounded-lg motion-safe:enabled:active:scale-[0.96] transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-accent/60 {appState.params.wireframe
           ? 'bg-studio-ink text-studio-bg'
           : 'text-studio-muted hover:text-studio-ink hover:bg-studio-elevated'}"
       >
@@ -121,7 +121,7 @@
       </button>
     </div>
 
-    <span class="text-[10px] font-mono text-studio-subtle tabular-nums" title="Active shard count">
+    <span class="text-[0.625rem] font-mono text-studio-subtle tabular-nums" title="Active shard count">
       {appState.seeds.length || appState.params.cellCount}
     </span>
   </nav>

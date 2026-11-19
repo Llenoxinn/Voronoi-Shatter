@@ -1,12 +1,42 @@
 let worker = null;
 let processId = 0;
 let onResult = null;
+let onError = null;
+
+function resetWorker() {
+  if (worker) {
+    try {
+      worker.terminate();
+    } catch {
+      // Ignore termination errors on already-failed workers
+    }
+    worker = null;
+  }
+}
 
 function getWorker() {
   if (!worker) {
     worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
     worker.onmessage = (e) => {
-      if (onResult) onResult(e.data);
+      if (e.data?.type === 'error') {
+        onError?.(e.data);
+        return;
+      }
+      onResult?.(e.data);
+    };
+    worker.onerror = (err) => {
+      resetWorker();
+      onError?.({
+        id: processId,
+        message: err?.message || 'Worker crashed unexpectedly',
+      });
+    };
+    worker.onmessageerror = () => {
+      resetWorker();
+      onError?.({
+        id: processId,
+        message: 'Worker message could not be deserialized',
+      });
     };
   }
   return worker;
@@ -14,6 +44,10 @@ function getWorker() {
 
 export function setOnResult(callback) {
   onResult = callback;
+}
+
+export function setOnError(callback) {
+  onError = callback;
 }
 
 function cloneParams(params) {
